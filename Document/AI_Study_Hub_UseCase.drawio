@@ -1,0 +1,124 @@
+<mxfile host="Electron" modified="2023-10-27T00:00:00.000Z" agent="Mozilla/5.0" version="22.0.4" type="device">
+  <diagram id="UC_Diagram" name="Use Case Diagram">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- System Boundary -->
+        <mxCell id="system" value="AI Study Hub System (Future Scope)" style="swimlane;whiteSpace=wrap;html=1;startSize=30;fillColor=#f5f5f5;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="180" y="40" width="600" height="760" as="geometry" />
+        </mxCell>
+
+        <!-- ACTORS -->
+        <mxCell id="actor_student" value="Sinh viên" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="40" y="360" width="50" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="actor_ai" value="AI Service&#10;(OpenAI/Gemini)" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="860" y="360" width="50" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- USE CASES inside System (Left Column - Manual) -->
+        <mxCell id="uc_manage_course" value="Quản lý Môn học" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="system">
+          <mxGeometry x="40" y="60" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_manage_deadline" value="Quản lý Deadline &amp; Lịch thi" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="system">
+          <mxGeometry x="40" y="140" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_manage_doc" value="Quản lý Tài liệu&#10;(Upload, Phân loại)" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="system">
+          <mxGeometry x="40" y="220" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_read_pdf" value="Đọc &amp; Ghi chú PDF" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="system">
+          <mxGeometry x="40" y="320" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_track_progress" value="Theo dõi Tiến độ học" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="system">
+          <mxGeometry x="40" y="520" width="140" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- USE CASES inside System (Right Column - AI Future Features) -->
+        <mxCell id="uc_auto_schedule" value="Tự động lên Lịch học" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="system">
+          <mxGeometry x="400" y="140" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_context_lookup" value="Tra cứu ngữ cảnh&#10;(Giải thích, Dịch)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="system">
+          <mxGeometry x="400" y="240" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_auto_summary" value="Tóm tắt tự động" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="system">
+          <mxGeometry x="400" y="320" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_ai_chat" value="Chat với Tài liệu" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="system">
+          <mxGeometry x="400" y="400" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_auto_flashcard" value="Sinh Flashcard/Quiz" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="system">
+          <mxGeometry x="400" y="480" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_evaluate_knowledge" value="Đánh giá năng lực" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="system">
+          <mxGeometry x="400" y="580" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_learning_path" value="Gợi ý Lộ trình học" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="system">
+          <mxGeometry x="400" y="660" width="140" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- EXTENDS / INCLUDES -->
+        <mxCell id="ext1" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="system" source="uc_context_lookup" target="uc_read_pdf">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ext2" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="system" source="uc_auto_summary" target="uc_read_pdf">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ext3" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="system" source="uc_ai_chat" target="uc_read_pdf">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="inc1" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;exitX=0.5;exitY=0;entryX=0.5;entryY=1;" edge="1" parent="system" source="uc_evaluate_knowledge" target="uc_auto_flashcard">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- EDGES STUDENT TO UC -->
+        <mxCell id="st_to_uc1" style="endArrow=none;html=1;" edge="1" parent="1" source="actor_student" target="uc_manage_course">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="st_to_uc2" style="endArrow=none;html=1;" edge="1" parent="1" source="actor_student" target="uc_manage_deadline">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="st_to_uc3" style="endArrow=none;html=1;" edge="1" parent="1" source="actor_student" target="uc_manage_doc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="st_to_uc4" style="endArrow=none;html=1;" edge="1" parent="1" source="actor_student" target="uc_read_pdf">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="st_to_uc5" style="endArrow=none;html=1;" edge="1" parent="1" source="actor_student" target="uc_track_progress">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="st_to_ai_chat" style="endArrow=none;html=1;" edge="1" parent="1" source="actor_student" target="uc_ai_chat">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="st_to_eval" style="endArrow=none;html=1;" edge="1" parent="1" source="actor_student" target="uc_evaluate_knowledge">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- EDGES AI TO UC -->
+        <mxCell id="ai_to_sched" style="endArrow=none;html=1;" edge="1" parent="1" source="actor_ai" target="uc_auto_schedule">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ai_to_lookup" style="endArrow=none;html=1;" edge="1" parent="1" source="actor_ai" target="uc_context_lookup">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ai_to_sum" style="end,html=1;" edge="1" parent="1" source="actor_ai" target="uc_auto_summary">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ai_to_chat" style="endArrow=none;html=1;" edge="1" parent="1" source="actor_ai" target="uc_ai_chat">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ai_to_flash" style="endArrow=none;html=1;" edge="1" parent="1" source="actor_ai" target="uc_auto_flashcard">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ai_to_eval" style="endArrow=none;html=1;" edge="1" parent="1" source="actor_ai" target="uc_evaluate_knowledge">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ai_to_path" style="endArrow=none;html=1;" edge="1" parent="1" source="actor_ai" target="uc_learning_path">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
