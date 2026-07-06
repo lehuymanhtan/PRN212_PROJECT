@@ -36,7 +36,6 @@ erDiagram
         string UserId FK
         string Name "Tên môn (VD: Toán rời rạc)"
         string CourseCode "Mã môn (VD: MAD101)"
-        int Credits "Số tín chỉ"
         string ColorHex "Màu hiển thị UI (VD: #FF0000)"
     }
 
