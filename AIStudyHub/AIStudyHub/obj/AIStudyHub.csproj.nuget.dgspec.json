@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Code\\github\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\AIStudyHub.csproj": {}
+    "V:\\SUM26\\PRN212\\project\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\AIStudyHub.csproj": {}
   },
   "projects": {
-    "C:\\Code\\github\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\AIStudyHub.csproj": {
+    "V:\\SUM26\\PRN212\\project\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\AIStudyHub.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Code\\github\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\AIStudyHub.csproj",
+        "projectUniqueName": "V:\\SUM26\\PRN212\\project\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\AIStudyHub.csproj",
         "projectName": "AIStudyHub",
-        "projectPath": "C:\\Code\\github\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\AIStudyHub.csproj",
-        "packagesPath": "C:\\Users\\ntpho\\.nuget\\packages\\",
-        "outputPath": "C:\\Code\\github\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\obj\\",
+        "projectPath": "V:\\SUM26\\PRN212\\project\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\AIStudyHub.csproj",
+        "packagesPath": "C:\\Users\\vovuo\\.nuget\\packages\\",
+        "outputPath": "V:\\SUM26\\PRN212\\project\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\ntpho\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\vovuo\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -55,6 +55,10 @@
             "CommunityToolkit.Mvvm": {
               "target": "Package",
               "version": "[8.1.0, )"
+            },
+            "MaterialDesignThemes": {
+              "target": "Package",
+              "version": "[5.3.2, )"
             },
             "Microsoft.EntityFrameworkCore.Design": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",

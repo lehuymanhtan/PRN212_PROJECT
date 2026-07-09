@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-C:\Code\github\PRN212_PROJECT\AIStudyHub\AIStudyHub\obj\Debug\net8.0-windows\
+V:\SUM26\PRN212\project\PRN212_PROJECT\AIStudyHub\AIStudyHub\obj\Debug\net8.0-windows\
 AIStudyHub
 none
 false
 TRACE;DEBUG;NET;NET8_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;WINDOWS7_0_OR_GREATER
-C:\Code\github\PRN212_PROJECT\AIStudyHub\AIStudyHub\App.xaml
-2-1114870848
+V:\SUM26\PRN212\project\PRN212_PROJECT\AIStudyHub\AIStudyHub\App.xaml
+4-55192873
+221914669739
+14-1466504654
+220-1308071416
+MainWindow.xaml;Themes\AppTheme.xaml;Views\DashboardView.xaml;Views\SubjectView.xaml;
 
-111647306028
-217803580585
-MainWindow.xaml;Views\SubjectView.xaml;
-
-False
+True
 
