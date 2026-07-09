@@ -1,0 +1,123 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Code\\github\\PRN212_PROJECT\\AIStudyHub\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{B46A2977-D0A8-5E31-811A-E0D6E948808F}|AIStudyHub\\AIStudyHub.csproj|c:\\code\\github\\prn212_project\\aistudyhub\\aistudyhub\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B46A2977-D0A8-5E31-811A-E0D6E948808F}|AIStudyHub\\AIStudyHub.csproj|solutionrelative:aistudyhub\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B46A2977-D0A8-5E31-811A-E0D6E948808F}|AIStudyHub\\AIStudyHub.csproj|c:\\code\\github\\prn212_project\\aistudyhub\\aistudyhub\\viewmodels\\subjectviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B46A2977-D0A8-5E31-811A-E0D6E948808F}|AIStudyHub\\AIStudyHub.csproj|solutionrelative:aistudyhub\\viewmodels\\subjectviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B46A2977-D0A8-5E31-811A-E0D6E948808F}|AIStudyHub\\AIStudyHub.csproj|c:\\code\\github\\prn212_project\\aistudyhub\\aistudyhub\\views\\subjectview.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{B46A2977-D0A8-5E31-811A-E0D6E948808F}|AIStudyHub\\AIStudyHub.csproj|solutionrelative:aistudyhub\\views\\subjectview.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B46A2977-D0A8-5E31-811A-E0D6E948808F}|AIStudyHub\\AIStudyHub.csproj|c:\\code\\github\\prn212_project\\aistudyhub\\aistudyhub\\app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{B46A2977-D0A8-5E31-811A-E0D6E948808F}|AIStudyHub\\AIStudyHub.csproj|solutionrelative:aistudyhub\\app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B46A2977-D0A8-5E31-811A-E0D6E948808F}|AIStudyHub\\AIStudyHub.csproj|c:\\code\\github\\prn212_project\\aistudyhub\\aistudyhub\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B46A2977-D0A8-5E31-811A-E0D6E948808F}|AIStudyHub\\AIStudyHub.csproj|solutionrelative:aistudyhub\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B46A2977-D0A8-5E31-811A-E0D6E948808F}|AIStudyHub\\AIStudyHub.csproj|c:\\code\\github\\prn212_project\\aistudyhub\\aistudyhub\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{B46A2977-D0A8-5E31-811A-E0D6E948808F}|AIStudyHub\\AIStudyHub.csproj|solutionrelative:aistudyhub\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 1,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedHeight": 200,
+          "SelectedChildIndex": 6,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "SubjectView.xaml",
+              "DocumentMoniker": "C:\\Code\\github\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\Views\\SubjectView.xaml",
+              "RelativeDocumentMoniker": "AIStudyHub\\Views\\SubjectView.xaml",
+              "ToolTip": "C:\\Code\\github\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\Views\\SubjectView.xaml",
+              "RelativeToolTip": "AIStudyHub\\Views\\SubjectView.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-07-08T13:54:14.748Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "App.xaml",
+              "DocumentMoniker": "C:\\Code\\github\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\App.xaml",
+              "RelativeDocumentMoniker": "AIStudyHub\\App.xaml",
+              "ToolTip": "C:\\Code\\github\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\App.xaml",
+              "RelativeToolTip": "AIStudyHub\\App.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-07-08T13:54:13.785Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "SubjectViewModel.cs",
+              "DocumentMoniker": "C:\\Code\\github\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\ViewModels\\SubjectViewModel.cs",
+              "RelativeDocumentMoniker": "AIStudyHub\\ViewModels\\SubjectViewModel.cs",
+              "ToolTip": "C:\\Code\\github\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\ViewModels\\SubjectViewModel.cs",
+              "RelativeToolTip": "AIStudyHub\\ViewModels\\SubjectViewModel.cs",
+              "ViewState": "AgIAABcAAAAAAAAAAAAAwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-07T01:44:01.884Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "MainWindow.xaml",
+              "DocumentMoniker": "C:\\Code\\github\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\MainWindow.xaml",
+              "RelativeDocumentMoniker": "AIStudyHub\\MainWindow.xaml",
+              "ToolTip": "C:\\Code\\github\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\MainWindow.xaml",
+              "RelativeToolTip": "AIStudyHub\\MainWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-07-06T17:45:34.58Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "AssemblyInfo.cs",
+              "DocumentMoniker": "C:\\Code\\github\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\AssemblyInfo.cs",
+              "RelativeDocumentMoniker": "AIStudyHub\\AssemblyInfo.cs",
+              "ToolTip": "C:\\Code\\github\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\AssemblyInfo.cs",
+              "RelativeToolTip": "AIStudyHub\\AssemblyInfo.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-06T17:45:31.17Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "AppDbContext.cs",
+              "DocumentMoniker": "C:\\Code\\github\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\Data\\AppDbContext.cs",
+              "RelativeDocumentMoniker": "AIStudyHub\\Data\\AppDbContext.cs",
+              "ToolTip": "C:\\Code\\github\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\Data\\AppDbContext.cs",
+              "RelativeToolTip": "AIStudyHub\\Data\\AppDbContext.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAgwAwAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-06T17:45:28.7Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
