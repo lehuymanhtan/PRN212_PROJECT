@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Code\\github\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\AIStudyHub.csproj": {}
+    "D:\\Dai_hoc\\Ki_5\\PRN212\\project_PRN\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\AIStudyHub.csproj": {}
   },
   "projects": {
-    "C:\\Code\\github\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\AIStudyHub.csproj": {
+    "D:\\Dai_hoc\\Ki_5\\PRN212\\project_PRN\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\AIStudyHub.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Code\\github\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\AIStudyHub.csproj",
+        "projectUniqueName": "D:\\Dai_hoc\\Ki_5\\PRN212\\project_PRN\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\AIStudyHub.csproj",
         "projectName": "AIStudyHub",
-        "projectPath": "C:\\Code\\github\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\AIStudyHub.csproj",
-        "packagesPath": "C:\\Users\\ntpho\\.nuget\\packages\\",
-        "outputPath": "C:\\Code\\github\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\obj\\",
+        "projectPath": "D:\\Dai_hoc\\Ki_5\\PRN212\\project_PRN\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\AIStudyHub.csproj",
+        "packagesPath": "C:\\Users\\minht\\.nuget\\packages\\",
+        "outputPath": "D:\\Dai_hoc\\Ki_5\\PRN212\\project_PRN\\PRN212_PROJECT\\AIStudyHub\\AIStudyHub\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\ntpho\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\minht\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -36,6 +36,9 @@
           }
         },
         "warningProperties": {
+          "noWarn": [
+            "NU1701"
+          ],
           "warnAsError": [
             "NU1605"
           ]
@@ -71,6 +74,18 @@
               "suppressParent": "All",
               "target": "Package",
               "version": "[8.0.3, )"
+            },
+            "PdfiumViewer": {
+              "target": "Package",
+              "version": "[2.13.0, )"
+            },
+            "PdfiumViewer.Native.x86_64.v8-xfa": {
+              "target": "Package",
+              "version": "[2018.4.8.256, )"
+            },
+            "System.Drawing.Common": {
+              "target": "Package",
+              "version": "[10.0.9, )"
             }
           },
           "imports": [

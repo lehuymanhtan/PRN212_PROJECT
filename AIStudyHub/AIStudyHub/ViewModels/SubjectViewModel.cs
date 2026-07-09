@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -25,10 +25,8 @@ namespace AIStudyHub.ViewModels
 
         public SubjectViewModel()
         {
+            AppDbContext.InitializeDatabase();
             _dbContext = new AppDbContext();
-
-            // Lệnh này đảm bảo tự động tạo file .db nếu chưa có
-            _dbContext.Database.EnsureCreated();
 
             LoadData();
         }

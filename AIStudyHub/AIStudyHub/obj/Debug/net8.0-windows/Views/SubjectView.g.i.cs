@@ -53,7 +53,7 @@ namespace AIStudyHub.Views {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/AIStudyHub;component/views/subjectview.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/AIStudyHub;V1.0.0.0;component/views/subjectview.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\..\Views\SubjectView.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);
