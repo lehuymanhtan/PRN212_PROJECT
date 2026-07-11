@@ -77,6 +77,26 @@ namespace AIStudyHub.Services
             return bitmapImage;
         }
 
+        /// <summary>
+        /// Trích xuất toàn bộ văn bản từ file PDF để sinh viên có thể bôi đen copy (Ctrl+C)
+        /// </summary>
+        public string GetAllText()
+        {
+            if (_pdfDocument == null) return string.Empty;
+            var sb = new System.Text.StringBuilder();
+            for (int i = 0; i < _pdfDocument.PageCount; i++)
+            {
+                sb.AppendLine($"--- Trang {i + 1} ---");
+                try
+                {
+                    sb.AppendLine(_pdfDocument.GetPdfText(i));
+                }
+                catch { }
+                sb.AppendLine();
+            }
+            return sb.ToString();
+        }
+
         public void Dispose()
         {
             if (_pdfDocument != null)

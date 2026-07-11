@@ -27,6 +27,9 @@ namespace AIStudyHub.ViewModels
         private ObservableCollection<Subject> _subjects = new();
 
         [ObservableProperty]
+        private ObservableCollection<Subject> _filterSubjects = new();
+
+        [ObservableProperty]
         private Subject? _selectedFilterSubject;
 
         [ObservableProperty]
@@ -35,6 +38,18 @@ namespace AIStudyHub.ViewModels
         // Trạng thái PDF Viewer
         [ObservableProperty]
         private bool _isViewerOpen;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsWordDocument))]
+        private bool _isPdfDocument = true;
+
+        public bool IsWordDocument => !IsPdfDocument;
+
+        [ObservableProperty]
+        private string _documentTextContent = string.Empty;
+
+        [ObservableProperty]
+        private Uri? _currentViewerUrl;
 
         [ObservableProperty]
         private string _currentTitle = string.Empty;
@@ -66,6 +81,7 @@ namespace AIStudyHub.ViewModels
             _pdfViewerService = new PdfViewerService();
 
             LoadSubjects();
+            SelectedFilterSubject = FilterSubjects.FirstOrDefault();
             LoadDocuments();
         }
 
@@ -74,11 +90,38 @@ namespace AIStudyHub.ViewModels
             using var db = new AppDbContext();
             var list = db.Subjects.ToList();
             Subjects = new ObservableCollection<Subject>(list);
+
+            var previousSelectedId = SelectedFilterSubject?.Id;
+
+            var filterList = new List<Subject> { new Subject { Id = Guid.Empty, Name = "Tất cả môn học" } };
+            filterList.AddRange(list);
+            FilterSubjects = new ObservableCollection<Subject>(filterList);
+
+            if (previousSelectedId.HasValue)
+            {
+                var reselected = FilterSubjects.FirstOrDefault(s => s.Id == previousSelectedId.Value);
+                if (reselected != null)
+                {
+                    SelectedFilterSubject = reselected;
+                }
+                else
+                {
+                    SelectedFilterSubject = FilterSubjects.FirstOrDefault();
+                }
+            }
+            else
+            {
+                SelectedFilterSubject = FilterSubjects.FirstOrDefault();
+            }
         }
 
         public void LoadDocuments()
         {
-            var list = _documentService.GetDocuments(SelectedFilterSubject?.Id);
+            Guid? filterId = (SelectedFilterSubject == null || SelectedFilterSubject.Id == Guid.Empty)
+                ? null
+                : SelectedFilterSubject.Id;
+
+            var list = _documentService.GetDocuments(filterId);
             Documents = new ObservableCollection<Document>(list);
             StatusMessage = $"Đã tải {Documents.Count} tài liệu.";
         }
@@ -101,27 +144,43 @@ namespace AIStudyHub.ViewModels
 
             var dialog = new OpenFileDialog
             {
-                Title = "Chọn file tài liệu PDF hoặc Word để tải lên",
+                Title = "Chọn các file tài liệu PDF hoặc Word để tải lên",
                 Filter = "Tài liệu học tập (*.pdf;*.docx;*.doc)|*.pdf;*.docx;*.doc|PDF Files (*.pdf)|*.pdf|Word Files (*.docx;*.doc)|*.docx;*.doc|All Files (*.*)|*.*",
-                Multiselect = false
+                Multiselect = true
             };
 
-            if (dialog.ShowDialog() == true)
+            if (dialog.ShowDialog() == true && dialog.FileNames.Length > 0)
             {
-                var targetSubject = SelectedFilterSubject ?? Subjects.First();
+                var selectDialog = new Views.SubjectSelectionDialog(Subjects.ToList());
+                if (selectDialog.ShowDialog() != true || selectDialog.SelectedSubject == null)
+                {
+                    StatusMessage = "Tải tài liệu bị hủy.";
+                    return;
+                }
+
+                var targetSubject = selectDialog.SelectedSubject;
+                int successCount = 0;
+                Document? lastDoc = null;
 
                 try
                 {
-                    StatusMessage = "Đang tải tài liệu vào App Data...";
-                    var doc = await _documentService.UploadDocumentAsync(dialog.FileName, targetSubject.Id);
-                    LoadDocuments();
-                    StatusMessage = $"Đã tải lên thành công: {doc.Title}";
-
-                    // Tự động mở ngay nếu là PDF
-                    if (doc.FileType == "PDF")
+                    StatusMessage = $"Đang tải lên {dialog.FileNames.Length} tài liệu...";
+                    foreach (var fileName in dialog.FileNames)
                     {
-                        OpenDocument(doc);
+                        try
+                        {
+                            var doc = await _documentService.UploadDocumentAsync(fileName, targetSubject.Id);
+                            lastDoc = doc;
+                            successCount++;
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Lỗi tải file {Path.GetFileName(fileName)}: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
                     }
+
+                    LoadDocuments();
+                    StatusMessage = $"Đã tải lên thành công {successCount} tài liệu.";
                 }
                 catch (Exception ex)
                 {
@@ -137,46 +196,103 @@ namespace AIStudyHub.ViewModels
             if (document == null) return;
 
             SelectedDocument = document;
+            CurrentTitle = document.Title;
+            IsViewerOpen = true;
 
-            if (document.FileType == "PDF")
+            string displayPath = document.FilePath;
+
+            if (string.Equals(document.FileType, "PDF", StringComparison.OrdinalIgnoreCase))
             {
-                try
-                {
-                    _pdfViewerService.LoadPdf(document.FilePath);
-                    TotalPages = _pdfViewerService.PageCount;
-                    CurrentPageNumber = 1;
-                    ZoomFactor = 1.0;
-                    RotationDegrees = 0;
-                    CurrentTitle = document.Title;
-                    IsViewerOpen = true;
-
-                    RenderCurrentPage();
-                    StatusMessage = $"Đang đọc PDF: {document.Title} ({TotalPages} trang)";
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Không thể mở file PDF: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                IsPdfDocument = true;
+                StatusMessage = $"Đang đọc PDF: {document.Title} (Xem toàn bộ trang & Bôi đen copy chữ)";
             }
             else
             {
-                // Nếu là Word DOCX, hỏi người dùng có muốn mở bằng Word của hệ thống không
-                var result = MessageBox.Show(
-                    $"File \"{document.Title}\" là định dạng Word ({document.FileType}).\nBạn có muốn mở file này bằng ứng dụng mặc định của Windows không?",
-                    "Mở tài liệu Word", MessageBoxButton.YesNo, MessageBoxImage.Information);
+                IsPdfDocument = false;
+                StatusMessage = $"Đang đọc Word: {document.Title} (Đúng bố cục Word không giới hạn trang & Bôi đen copy chữ)";
 
-                if (result == MessageBoxResult.Yes)
+                try
                 {
-                    try
+                    string cacheDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AIStudyHub", "Cache");
+                    Directory.CreateDirectory(cacheDir);
+                    displayPath = Path.Combine(cacheDir, $"{document.Id}.html");
+
+                    if (!File.Exists(displayPath) || File.GetLastWriteTime(document.FilePath) > File.GetLastWriteTime(displayPath))
                     {
-                        Process.Start(new ProcessStartInfo(document.FilePath) { UseShellExecute = true });
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Lỗi mở file: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                        var converter = new Mammoth.DocumentConverter();
+                        var result = converter.ConvertToHtml(document.FilePath);
+                        string htmlBody = result.Value ?? string.Empty;
+
+                        string styledHtml = $@"<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'>
+<style>
+  body {{
+    font-family: 'Segoe UI', Calibri, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    color: #1E293B;
+    background-color: #F1F5F9;
+    margin: 0;
+    padding: 30px 20px;
+  }}
+  .word-page {{
+    background: white;
+    padding: 50px 65px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    border-radius: 8px;
+    max-width: 860px;
+    margin: 0 auto;
+    min-height: 900px;
+  }}
+  table {{
+    border-collapse: collapse;
+    width: 100%;
+    margin: 18px 0;
+  }}
+  table, th, td {{
+    border: 1px solid #CBD5E1;
+  }}
+  th, td {{
+    padding: 10px 14px;
+    text-align: left;
+  }}
+  th {{
+    background-color: #F8FAFC;
+    font-weight: 600;
+  }}
+  h1, h2, h3, h4 {{
+    color: #0F172A;
+    margin-top: 1.4em;
+    margin-bottom: 0.5em;
+  }}
+  p {{
+    margin: 0.85em 0;
+  }}
+  img {{
+    max-width: 100%;
+    height: auto;
+  }}
+</style>
+</head>
+<body>
+  <div class='word-page'>
+    {htmlBody}
+  </div>
+</body>
+</html>";
+                        File.WriteAllText(displayPath, styledHtml, System.Text.Encoding.UTF8);
                     }
                 }
+                catch { }
             }
+
+            try
+            {
+                CurrentViewerUrl = new Uri(displayPath);
+            }
+            catch { }
         }
 
         [RelayCommand]
