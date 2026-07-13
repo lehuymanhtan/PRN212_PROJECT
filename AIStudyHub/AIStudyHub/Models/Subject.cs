@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 
 namespace AIStudyHub.Models
 {
@@ -12,5 +13,6 @@ namespace AIStudyHub.Models
 
         // Relationship (Navigation Property)
         public User? User { get; set; }
+        public ICollection<Document> Documents { get; set; } = new List<Document>();
     }
 }

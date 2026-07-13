@@ -1,28 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+using System;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace AIStudyHub.Views
 {
-    /// <summary>
-    /// Interaction logic for SubjectView.xaml
-    /// </summary>
     public partial class SubjectView : UserControl
     {
         public SubjectView()
         {
             InitializeComponent();
+        }
+
+        private void DataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+        {
+            if (e.EditAction == DataGridEditAction.Commit)
+            {
+                if (e.Row.Item is Models.Subject subject)
+                {
+                    // Đợi luồng UI cập nhật giá trị mới từ ô cell vào object
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        try
+                        {
+                            using var db = new Data.AppDbContext();
+                            var existing = db.Subjects.Find(subject.Id);
+                            if (existing != null)
+                            {
+                                existing.Name = subject.Name;
+                                existing.CourseCode = subject.CourseCode;
+                                db.SaveChanges();
+                            }
+                        }
+                        catch { }
+                    }), System.Windows.Threading.DispatcherPriority.Background);
+                }
+            }
         }
     }
 }

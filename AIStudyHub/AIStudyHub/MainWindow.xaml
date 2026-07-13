@@ -90,17 +90,31 @@
                     </Button>
 
                     <!-- Các module khác (placeholder) -->
-                    <Button Content="📄  Tài liệu PDF" HorizontalContentAlignment="Left"
-                            Padding="16,12" Background="Transparent" Foreground="#64748B"
-                            BorderThickness="0" FontSize="14" Cursor="Hand" Margin="0,2" IsEnabled="False">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Border Background="{TemplateBinding Background}" CornerRadius="8"
-                                        Padding="{TemplateBinding Padding}">
-                                    <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Button.Template>
+                    <Button x:Name="btnDocument" Content="📄  Tài liệu PDF"
+                            Click="NavButton_Click" Tag="Document"
+                            HorizontalContentAlignment="Left" Padding="16,12"
+                            Background="Transparent" Foreground="#94A3B8" BorderThickness="0"
+                            FontSize="14" Cursor="Hand" Margin="0,2">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#334155"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
                     </Button>
 
                     <Button Content="🤖  AI Assistant" HorizontalContentAlignment="Left"
