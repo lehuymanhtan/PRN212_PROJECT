@@ -6,18 +6,23 @@ namespace AIStudyHub.ViewModels
     public partial class MainViewModel : ObservableObject
     {
         [ObservableProperty]
-        private int _selectedTabIndex = 0;
+        private ObservableObject _currentViewModel;
 
-        [RelayCommand]
-        private void ShowSubjects()
+        [ObservableProperty]
+        private bool _isChatVisible = false;
+
+        public MainViewModel()
         {
-            SelectedTabIndex = 0;
+            CurrentViewModel = new DashboardViewModel();
         }
 
         [RelayCommand]
-        private void ShowDocuments()
-        {
-            SelectedTabIndex = 1;
-        }
+        private void NavigateToDashboard() => CurrentViewModel = new DashboardViewModel();
+
+        [RelayCommand]
+        private void NavigateToSubjects() => CurrentViewModel = new SubjectViewModel();
+
+        [RelayCommand]
+        private void ToggleChat() => IsChatVisible = !IsChatVisible;
     }
 }

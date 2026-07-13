@@ -1,9 +1,32 @@
-﻿<Application x:Class="AIStudyHub.App"
+<Application x:Class="AIStudyHub.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:AIStudyHub"
+             xmlns:vm="clr-namespace:AIStudyHub.ViewModels"
+             xmlns:views="clr-namespace:AIStudyHub.Views"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- MaterialDesign Theme -->
+                <materialDesign:BundledTheme xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                                             BaseTheme="Light"
+                                             PrimaryColor="Indigo"
+                                             SecondaryColor="Cyan" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />
+
+                <!-- Custom App Theme -->
+                <ResourceDictionary Source="Themes/AppTheme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- DataTemplates cho MVVM -->
+            <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
+                <views:DashboardView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:SubjectViewModel}">
+                <views:SubjectView />
+            </DataTemplate>
+
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
