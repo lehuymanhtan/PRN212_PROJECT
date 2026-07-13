@@ -33,6 +33,10 @@ namespace AIStudyHub
             btnTask.Foreground = new System.Windows.Media.SolidColorBrush(
                 System.Windows.Media.Color.FromRgb(148, 163, 184));
 
+            btnDocument.Background = System.Windows.Media.Brushes.Transparent;
+            btnDocument.Foreground = new System.Windows.Media.SolidColorBrush(
+                System.Windows.Media.Color.FromRgb(148, 163, 184));
+
             // Đánh dấu nút đang active
             btn.Background = new System.Windows.Media.SolidColorBrush(
                 System.Windows.Media.Color.FromRgb(59, 130, 246));
@@ -43,6 +47,7 @@ namespace AIStudyHub
             {
                 "Subject" => new SubjectView(),
                 "Task" => new TaskView(),
+                "Document" => new DocumentView(),
                 _ => new TaskView()
             };
         }
