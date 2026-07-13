@@ -26,6 +26,12 @@
             <DataTemplate DataType="{x:Type vm:SubjectViewModel}">
                 <views:SubjectView />
             </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:TaskViewModel}">
+                <views:TaskView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:DocumentViewModel}">
+                <views:DocumentView />
+            </DataTemplate>
 
         </ResourceDictionary>
     </Application.Resources>

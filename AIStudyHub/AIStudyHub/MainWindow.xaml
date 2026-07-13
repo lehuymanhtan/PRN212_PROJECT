@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:views="clr-namespace:AIStudyHub.Views"
         xmlns:vm="clr-namespace:AIStudyHub.ViewModels"
-        Title="AI Study Hub" Height="720" Width="1200"
+        Title="AI Study Hub" Height="720" Width="1200" MinWidth="1200" MinHeight="768"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource AppBgBrush}"
         FontFamily="Segoe UI">
@@ -58,28 +58,56 @@
 
                 <!-- Nav Items -->
                 <StackPanel>
-                    <Button Style="{StaticResource NavButtonActiveStyle}" Margin="0,2" Command="{Binding NavigateToDashboardCommand}">
+                    <Button Margin="0,2" Command="{Binding NavigateToTasksCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsTasksActive}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource SidebarActiveBrush}"/>
+                                        <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="⊞" FontSize="16"/>
-                            <TextBlock Text="Dashboard" Margin="10,0,0,0"/>
+                            <TextBlock Text="📅" FontSize="16"/>
+                            <TextBlock Text="Deadlines &amp; Exams" Margin="10,0,0,0"/>
                         </StackPanel>
                     </Button>
-                    <Button Style="{StaticResource NavButtonStyle}" Margin="0,2" Command="{Binding NavigateToSubjectsCommand}">
+                    <Button Margin="0,2" Command="{Binding NavigateToSubjectsCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSubjectsActive}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource SidebarActiveBrush}"/>
+                                        <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="🎓" FontSize="14"/>
                             <TextBlock Text="My Subjects" Margin="10,0,0,0"/>
                         </StackPanel>
                     </Button>
-                    <Button Style="{StaticResource NavButtonStyle}" Margin="0,2">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="📅" FontSize="14"/>
-                            <TextBlock Text="Deadlines &amp; Exams" Margin="10,0,0,0"/>
-                        </StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource NavButtonStyle}" Margin="0,2">
+                    
+                    <Button Margin="0,2" Command="{Binding NavigateToDocumentsCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsDocumentsActive}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource SidebarActiveBrush}"/>
+                                        <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="📄" FontSize="14"/>
-                            <TextBlock Text="PDF Reader" Margin="10,0,0,0"/>
+                            <TextBlock Text="Document" Margin="10,0,0,0"/>
                         </StackPanel>
                     </Button>
                     <Button Style="{StaticResource NavButtonStyle}" Margin="0,2">
@@ -94,32 +122,6 @@
 
         <!-- ========== MAIN CONTENT ========== -->
         <DockPanel Grid.Column="1" Margin="0">
-
-            <!-- TOP BAR -->
-            <Border DockPanel.Dock="Top" Background="{StaticResource SidebarBgBrush}"
-                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="20,12">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <!-- Search -->
-                    <Grid Grid.Column="0" MaxWidth="320" HorizontalAlignment="Left">
-                        <TextBox Style="{StaticResource SearchBoxStyle}" Text="Search subjects, notes..."/>
-                        <TextBlock Text="🔍" VerticalAlignment="Center" Margin="12,0,0,0" Foreground="{StaticResource TextSecondaryBrush}"/>
-                    </Grid>
-                    <!-- User Info -->
-                    <StackPanel Grid.Column="1" Orientation="Horizontal">
-                        <Button Style="{StaticResource NavButtonStyle}" Padding="8">
-                            <TextBlock Text="🔔" FontSize="16"/>
-                        </Button>
-                        <Border Width="34" Height="34" CornerRadius="17" Background="{StaticResource PrimaryBrush}" Margin="8,0">
-                            <TextBlock Text="V" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <TextBlock Text="John Doe" VerticalAlignment="Center" FontSize="14" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
 
             <!-- MAIN VIEW (DYNAMIC) -->
             <ContentControl Content="{Binding CurrentViewModel}" />
