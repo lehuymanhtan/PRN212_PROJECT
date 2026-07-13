@@ -1,6 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using AIStudyHub.Models;
@@ -25,10 +27,8 @@ namespace AIStudyHub.ViewModels
 
         public SubjectViewModel()
         {
+            AppDbContext.InitializeDatabase();
             _dbContext = new AppDbContext();
-
-            // Lệnh này đảm bảo tự động tạo file .db nếu chưa có
-            _dbContext.Database.EnsureCreated();
 
             LoadData();
         }
@@ -81,12 +81,40 @@ namespace AIStudyHub.ViewModels
         {
             if (subject == null) return;
 
-            // Xoá dưới DB
-            _dbContext.Subjects.Remove(subject);
-            _dbContext.SaveChanges();
+            var result = MessageBox.Show(
+                "Nếu môn học bị xóa, các tài liệu của môn học cũng sẽ bị xóa. Bạn có chắc chắn muốn xóa môn học này không?",
+                "Xác nhận xóa môn học",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
 
-            // Xoá trên UI
-            Subjects.Remove(subject);
+            if (result != MessageBoxResult.Yes) return;
+
+            try
+            {
+                // Tìm tất cả tài liệu của môn học này để xoá file vật lý & xoá dưới DB
+                var documents = _dbContext.Documents.Where(d => d.SubjectId == subject.Id).ToList();
+                foreach (var doc in documents)
+                {
+                    if (!string.IsNullOrEmpty(doc.FilePath) && File.Exists(doc.FilePath))
+                    {
+                        try
+                        {
+                            File.Delete(doc.FilePath);
+                        }
+                        catch { }
+                    }
+                    _dbContext.Documents.Remove(doc);
+                }
+
+                _dbContext.Subjects.Remove(subject);
+                _dbContext.SaveChanges();
+
+                Subjects.Remove(subject);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi xóa môn học: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }
