@@ -34,8 +34,15 @@
 - **Công cụ tương tác:** Hỗ trợ Highlight (tô sáng) đoạn văn bản, thêm Sticky Notes (Ghi chú) dán trực tiếp lên các trang PDF.
 
 ### 3.4. Trợ lý AI Thông minh (AI Smart Assistant - Điểm nhấn)
-- **Tra cứu nhanh theo ngữ cảnh (Contextual Lookup):** Người dùng bôi đen một đoạn văn bản trong PDF -> Click chuột phải (hoặc phím tắt) -> Chọn các lệnh AI: *Dịch sang tiếng Việt*, *Tóm tắt đoạn này*, hoặc *Giải thích thuật ngữ*.
-- **Chat với Tài liệu:** Tích hợp một Sidebar khung chat AI bên cạnh màn hình PDF. Trợ lý có thể trò chuyện và trả lời các câu hỏi dựa trên nội dung tài liệu đang mở.
+- **Tra cứu nhanh theo ngữ cảnh (Contextual Lookup):** Người dùng bôi đen một đoạn văn bản trong PDF -> Click chuột phải (hoặc phím tắt) -> Chọn các lệnh AI: *Dịch sang tiếng Việt*, *Tóm tắt đoạn này*, hoặc *Giải thích thuật ngữ*. Kết quả tra cứu sẽ được đẩy thẳng vào giao diện Chat Sidebar để người dùng tiện theo dõi và hỏi tiếp.
+- **Chat với Tài liệu:** Tích hợp một Sidebar khung chat AI bên cạnh màn hình PDF. 
+  - Lịch sử chat sẽ được lưu lại theo từng tài liệu (Mỗi file PDF có một luồng chat riêng biệt).
+  - Áp dụng cơ chế **RAG (Retrieval-Augmented Generation)**: Khi người dùng thêm tài liệu vào phần mềm, hệ thống sẽ chạy ngầm xử lý trích xuất văn bản và tạo Index (chỉ mục). Khi người dùng đặt câu hỏi, AI sẽ tìm kiếm các đoạn văn bản liên quan nhất trong Index để trả lời, giải quyết vấn đề giới hạn Token của các file PDF dài.
+- **AI Agent (Thực thi tự động - Tính năng Thử nghiệm):** 
+  - Nâng cấp AI từ việc chỉ "trả lời tin nhắn" (Chatbot) thành một Trợ lý thực thụ (Agent) có khả năng tự động gọi các hàm trong ứng dụng (Function Calling) dựa trên yêu cầu của người dùng.
+  - *Ví dụ:* Người dùng nhắn "Tạo cho mình 10 Flashcard từ chương này", AI sẽ tự phân tích và lưu thẳng thẻ vào Database; hoặc "Thêm lịch thi ngày mai", AI tự gọi hàm AddDeadline.
+  - *(Lưu ý - Experimental): Đây là tính năng mở rộng (Nice-to-have). Nhóm sẽ ưu tiên hoàn thiện bản Chatbot cốt lõi trước, nếu còn thời gian sẽ tích hợp Agentic AI để làm điểm nhấn tuyệt đối, tránh rủi ro cháy tiến độ dự án.*
+- **Xử lý ngoại tuyến (Offline State):** Tính năng AI yêu cầu kết nối mạng liên tục. Nếu mất mạng, Sidebar AI sẽ hiển thị thông báo "Offline" và tạm khóa các chức năng AI (chỉ cho phép đọc/quản lý PDF nội bộ).
 
 ### 3.5. Hệ thống Ôn tập Thông minh (Flashcards & Spaced Repetition)
 - **Tạo Flashcard tự động/thủ công:** Tích hợp AI để tự động sinh các Flashcard (câu hỏi - đáp án) từ nội dung tài liệu/bài học, hoặc cho phép người dùng tự tạo thẻ học tập riêng.
@@ -47,8 +54,8 @@
 - **Ngôn ngữ lập trình:** C# (Khuyến nghị dùng .NET 8).
 - **UI Framework:** WPF kết hợp các thư viện giao diện như `MaterialDesignInXamlToolkit` để có UI hiện đại.
 - **Cơ sở dữ liệu (Database):** `SQLite` kết hợp `Entity Framework Core` (Code-first). Phù hợp làm app Desktop cá nhân vì không cần cài cắm server phức tạp.
-- **Xử lý PDF:** Các thư viện như `PdfiumViewer`, `Syncfusion.PdfViewer.WPF`, hoặc `MuPDF`.
-- **AI Integration:** Sử dụng `HttpClient` gọi REST API đến OpenAI (ChatGPT) hoặc Google (Gemini API).
+- **Xử lý PDF:** Các thư viện như `PdfiumViewer`, `Syncfusion.PdfViewer.WPF`, hoặc `MuPDF` (Hiện tại đang sử dụng tích hợp mặc định của WebView2).
+- **AI Integration:** Sử dụng `HttpClient` gọi REST API đến OpenAI (ChatGPT) hoặc Google (Gemini API). Cần thiết kế một trang **Settings (Cài đặt)** để người dùng tự nhập và lưu API Key cá nhân của họ.
 
 ---
 
