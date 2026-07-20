@@ -1,32 +1,40 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using AIStudyHub.Models;
+using AIStudyHub.Data;
 
 namespace AIStudyHub.ViewModels
 {
     public partial class AnnotationViewModel : ObservableObject
     {
+        private readonly AppDbContext _dbContext;
+
         [ObservableProperty]
         private ObservableCollection<Annotation> _documentAnnotations;
 
         public AnnotationViewModel()
         {
+            _dbContext = new AppDbContext();
             DocumentAnnotations = new ObservableCollection<Annotation>();
         }
 
-        // Dummy method to simulate loading from DB
         public void LoadAnnotationsForDocument(string documentId)
         {
             DocumentAnnotations.Clear();
-            // Placeholder: Fetch from DB using EF Core
+            var annotations = _dbContext.Annotations.Where(a => a.DocumentId == documentId).ToList();
+            foreach (var annotation in annotations)
+            {
+                DocumentAnnotations.Add(annotation);
+            }
         }
 
         public void AddHighlight(int page, double x, double y, string content)
         {
             var newHighlight = new Annotation
             {
-                DocumentId = "sample_doc_id", // Placeholder
+                DocumentId = "sample_doc_id", // Placeholder until document selection is fully implemented
                 PageNumber = page,
                 PosX = x,
                 PosY = y,
@@ -36,14 +44,15 @@ namespace AIStudyHub.ViewModels
 
             DocumentAnnotations.Add(newHighlight);
 
-            // Placeholder: Save to DB using EF Core
+            _dbContext.Annotations.Add(newHighlight);
+            _dbContext.SaveChanges();
         }
 
         public void AddNote(int page, double x, double y, string content)
         {
             var newNote = new Annotation
             {
-                DocumentId = "sample_doc_id", // Placeholder
+                DocumentId = "sample_doc_id", // Placeholder until document selection is fully implemented
                 PageNumber = page,
                 PosX = x,
                 PosY = y,
@@ -53,7 +62,8 @@ namespace AIStudyHub.ViewModels
 
             DocumentAnnotations.Add(newNote);
 
-            // Placeholder: Save to DB using EF Core
+            _dbContext.Annotations.Add(newNote);
+            _dbContext.SaveChanges();
         }
     }
 }

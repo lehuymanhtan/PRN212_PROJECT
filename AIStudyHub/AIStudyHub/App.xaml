@@ -35,6 +35,12 @@
             <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
                 <views:SettingsView />
             </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:FlashcardViewModel}">
+                <views:FlashcardView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:FlashcardDeckViewModel}">
+                <views:FlashcardDeckView />
+            </DataTemplate>
 
         </ResourceDictionary>
     </Application.Resources>

@@ -114,7 +114,18 @@
                             <TextBlock Text="Document" Margin="10,0,0,0"/>
                         </StackPanel>
                     </Button>
-                    <Button Style="{StaticResource NavButtonStyle}" Margin="0,2">
+                    <Button Margin="0,2" Command="{Binding NavigateToFlashcardsCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsFlashcardsActive}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource SidebarActiveBrush}"/>
+                                        <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="🧠" FontSize="14"/>
                             <TextBlock Text="Flashcards &amp; Notes" Margin="10,0,0,0"/>
