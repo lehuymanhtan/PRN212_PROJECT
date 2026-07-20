@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:views="clr-namespace:AIStudyHub.Views"
         xmlns:vm="clr-namespace:AIStudyHub.ViewModels"
+        xmlns:conv="clr-namespace:AIStudyHub.Converters"
         Title="AI Study Hub" Height="720" Width="1200" MinWidth="1200" MinHeight="768"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource AppBgBrush}"
@@ -10,6 +11,9 @@
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <conv:RoleToAlignConverter x:Key="RoleToAlignConv" />
+        <conv:RoleToBgConverter x:Key="RoleToBgConv" />
+        <conv:RoleToFgConverter x:Key="RoleToFgConv" />
     </Window.Resources>
 
     <Window.DataContext>
@@ -116,23 +120,39 @@
                             <TextBlock Text="Flashcards &amp; Notes" Margin="10,0,0,0"/>
                         </StackPanel>
                     </Button>
+                    <Button Margin="0,2" Command="{Binding NavigateToSettingsCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSettingsActive}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource SidebarActiveBrush}"/>
+                                        <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⚙️" FontSize="14"/>
+                            <TextBlock Text="Settings" Margin="10,0,0,0"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </DockPanel>
         </Border>
 
         <!-- ========== MAIN CONTENT ========== -->
         <DockPanel Grid.Column="1" Margin="0">
-
             <!-- MAIN VIEW (DYNAMIC) -->
             <ContentControl Content="{Binding CurrentViewModel}" />
-
         </DockPanel>
 
-        <!-- ========== FLOATING ACTION BUTTON (AI CHAT) ========== -->
-        <Button Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,24,24"
-                Width="56" Height="56" Padding="0"
+        <!-- ========== FLOATING ACTION BUTTON (AI CHAT - TOP RIGHT) ========== -->
+        <Button Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,16,24,0"
+                Width="48" Height="48" Padding="0"
                 Command="{Binding ToggleChatCommand}"
-                ToolTip="Open AI Study Assistant">
+                ToolTip="Mở / Đóng Trợ lý AI"
+                Panel.ZIndex="10">
             <Button.Style>
                 <Style TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
                     <Setter Property="Visibility" Value="Visible" />
@@ -145,39 +165,45 @@
             </Button.Style>
             <Button.Template>
                 <ControlTemplate TargetType="Button">
-                    <Border Background="{TemplateBinding Background}" CornerRadius="28">
-                        <TextBlock Text="🤖" FontSize="26" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Border Background="{TemplateBinding Background}" CornerRadius="24">
+                        <TextBlock Text="🤖" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                 </ControlTemplate>
             </Button.Template>
         </Button>
 
-        <!-- ========== AI CHAT PANEL ========== -->
+        <!-- ========== AI CHAT SIDEBAR ========== -->
         <Border Grid.Column="2" Background="{StaticResource SidebarBgBrush}"
                 BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,0,0,0"
-                Width="280"
+                Width="320"
                 Visibility="{Binding IsChatVisible, Converter={StaticResource BoolToVis}}">
+            <Grid>
             <DockPanel Margin="0">
-
                 <!-- Chat Header -->
                 <Border DockPanel.Dock="Top" Padding="16,14" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
                     <Grid>
                         <StackPanel HorizontalAlignment="Center">
-                            <Border Width="56" Height="56" CornerRadius="28" Background="#EEF0FF" HorizontalAlignment="Center" Margin="0,0,0,8">
-                                <TextBlock Text="🤖" FontSize="26" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Border Width="50" Height="50" CornerRadius="25" Background="#EEF0FF" HorizontalAlignment="Center" Margin="0,0,0,8">
+                                <TextBlock Text="🤖" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
-                            <TextBlock Text="AI Study Assistant" FontSize="15" FontWeight="Bold"
-                                       Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Center"/>
-                            <TextBlock Text="(Aisha)" Style="{StaticResource CaptionStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="AI Study Assistant" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Luôn sẵn sàng hỗ trợ bạn!" Style="{StaticResource CaptionStyle}" HorizontalAlignment="Center" Foreground="{StaticResource AccentCyanBrush}"/>
                         </StackPanel>
-                        <!-- Close Button -->
-                        <Button HorizontalAlignment="Right" VerticalAlignment="Top" 
-                                Background="Transparent" BorderThickness="0" 
-                                Foreground="{StaticResource TextSecondaryBrush}" Padding="4"
-                                Command="{Binding ToggleChatCommand}"
-                                ToolTip="Close Chat">
-                            <TextBlock Text="✕" FontSize="16" FontWeight="Bold"/>
-                        </Button>
+                        <!-- Close & New Chat Buttons -->
+                        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Orientation="Horizontal">
+                            <Button Background="Transparent" BorderThickness="0" 
+                                    Foreground="{StaticResource TextSecondaryBrush}" Padding="4" Margin="0,0,4,0"
+                                    Command="{Binding StartNewChatCommand}"
+                                    ToolTip="Cuộc trò chuyện mới (Xóa lịch sử)">
+                                <TextBlock Text="🧹" FontSize="14"/>
+                            </Button>
+                            <Button Background="Transparent" BorderThickness="0" 
+                                    Foreground="{StaticResource TextSecondaryBrush}" Padding="4"
+                                    Command="{Binding ToggleChatCommand}"
+                                    ToolTip="Đóng">
+                                <TextBlock Text="✕" FontSize="16" FontWeight="Bold"/>
+                            </Button>
+                        </StackPanel>
                     </Grid>
                 </Border>
 
@@ -189,43 +215,67 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <Border Background="{StaticResource AppBgBrush}" CornerRadius="20" Padding="14,8">
-                            <TextBox BorderThickness="0" Background="Transparent" FontSize="12"
-                                     Foreground="{StaticResource TextSecondaryBrush}"
-                                     Text="Type your study question here..."/>
+                            <TextBox Text="{Binding ChatInputText, UpdateSourceTrigger=PropertyChanged}" 
+                                     BorderThickness="0" Background="Transparent" FontSize="13"
+                                     Foreground="{StaticResource TextPrimaryBrush}"
+                                     TextWrapping="Wrap" MaxHeight="100"
+                                     AcceptsReturn="True" PreviewKeyDown="ChatInput_PreviewKeyDown"/>
                         </Border>
                         <Button Grid.Column="1" Margin="8,0,0,0" Width="36" Height="36"
+                                Command="{Binding SendChatMessageCommand}"
                                 Style="{StaticResource PrimaryButtonStyle}" Padding="0" Content="➤"
                                 FontSize="14"/>
                     </Grid>
                 </Border>
 
-                <!-- Chat Messages -->
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="14,10">
+                <!-- Chat Messages (Tự động cuộn ScrollViewer bên trong ListView) -->
+                <ListView ItemsSource="{Binding ChatMessages}" 
+                          BorderThickness="0" Background="Transparent" 
+                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          ScrollViewer.CanContentScroll="False">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="0,8,0,8" Width="270">
+                                <TextBlock Text="{Binding Role}" Style="{StaticResource CaptionStyle}" 
+                                           HorizontalAlignment="{Binding Role, Converter={StaticResource RoleToAlignConv}}" 
+                                           Margin="0,0,0,4"/>
+                                <Border Background="{Binding Role, Converter={StaticResource RoleToBgConv}}" 
+                                        CornerRadius="10" Padding="12,10"
+                                        HorizontalAlignment="{Binding Role, Converter={StaticResource RoleToAlignConv}}">
+                                    <TextBlock Text="{Binding Content}" FontSize="13" 
+                                               Foreground="{Binding Role, Converter={StaticResource RoleToFgConv}}" 
+                                               TextWrapping="Wrap"/>
+                                </Border>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </DockPanel>
+
+            <!-- New Chat Warning Popup -->
+            <Grid Visibility="{Binding IsNewChatWarningVisible, Converter={StaticResource BoolToVis}}" Background="#80000000">
+                <Border Background="{StaticResource CardBgBrush}" CornerRadius="12" Padding="20" HorizontalAlignment="Center" VerticalAlignment="Center" Width="280">
                     <StackPanel>
-                        <!-- AI Message -->
-                        <StackPanel Margin="0,0,0,10">
-                            <TextBlock Text="(Aisha)" Style="{StaticResource CaptionStyle}" Margin="0,0,0,2"/>
-                            <Border Style="{StaticResource BubbleLeftStyle}">
-                                <TextBlock Text="How can I help you today, John?" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap"/>
-                            </Border>
-                        </StackPanel>
-                        <!-- User Message -->
-                        <StackPanel Margin="0,0,0,10">
-                            <TextBlock Text="(John)" Style="{StaticResource CaptionStyle}" HorizontalAlignment="Right" Margin="0,0,0,2"/>
-                            <Border Style="{StaticResource BubbleRightStyle}">
-                                <TextBlock Text="Summarize the key points of Newton's Laws." FontSize="12" Foreground="White" TextWrapping="Wrap"/>
-                            </Border>
-                        </StackPanel>
-                        <!-- AI Reply -->
-                        <StackPanel Margin="0,0,0,10">
-                            <TextBlock Text="(Aisha)" Style="{StaticResource CaptionStyle}" Margin="0,0,0,2"/>
-                            <Border Style="{StaticResource BubbleLeftStyle}">
-                                <TextBlock Text="Certainly! Newton's first law states that an object in motion stays in motion unless acted upon by an external force..." FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap"/>
-                            </Border>
+                        <TextBlock Text="Xóa lịch sử chat" FontWeight="Bold" FontSize="16" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+                        <TextBlock Text="Đoạn chat hiện tại sẽ bị xóa. Bạn có chắc chắn muốn tạo cuộc trò chuyện mới không?" TextWrapping="Wrap" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,16"/>
+                        <CheckBox Content="Không hiện lại" IsChecked="{Binding DoNotShowNewChatWarning}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,16"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="Hủy" Command="{Binding CancelNewChatCommand}" Background="Transparent" Foreground="{StaticResource TextSecondaryBrush}" BorderThickness="0" Padding="12,6" Margin="0,0,8,0" Cursor="Hand"/>
+                            <Button Content="Đồng ý" Command="{Binding ConfirmNewChatCommand}" Background="{StaticResource PrimaryBrush}" Foreground="White" BorderThickness="0" Padding="16,6" Cursor="Hand">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                            <TextBlock Text="{TemplateBinding Content}" FontWeight="SemiBold" Foreground="White"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
                         </StackPanel>
                     </StackPanel>
-                </ScrollViewer>
-            </DockPanel>
+                </Border>
+            </Grid>
+            </Grid>
         </Border>
     </Grid>
 </Window>

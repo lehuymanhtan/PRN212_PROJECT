@@ -9,24 +9,23 @@ namespace AIStudyHub.Data
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<TaskItem> Tasks { get; set; }
         public DbSet<Document> Documents { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
+        public DbSet<DocumentChunk> DocumentChunks { get; set; }
+        public DbSet<AppSetting> AppSettings { get; set; }
 
         public static void InitializeDatabase()
         {
             using var db = new AppDbContext();
             db.Database.EnsureCreated();
 
-            // Đảm bảo tạo bảng DOCUMENT nếu database cũ trước đó chưa có bảng này
-            db.Database.ExecuteSqlRaw(@"
-                CREATE TABLE IF NOT EXISTS ""DOCUMENT"" (
-                    ""Id"" TEXT NOT NULL CONSTRAINT ""PK_DOCUMENT"" PRIMARY KEY,
-                    ""SubjectId"" TEXT NOT NULL,
-                    ""Title"" TEXT NOT NULL,
-                    ""FilePath"" TEXT NOT NULL,
-                    ""FileType"" TEXT NULL,
-                    ""UploadedAt"" TEXT NOT NULL,
-                    CONSTRAINT ""FK_DOCUMENT_SUBJECT_SubjectId"" FOREIGN KEY (""SubjectId"") REFERENCES ""SUBJECT"" (""Id"") ON DELETE CASCADE
-                );
-            ");
+            // Khởi tạo các giá trị mặc định cho AppSetting nếu chưa có
+            var defaultEndpoint = db.AppSettings.Find("ApiEndpoint");
+            if (defaultEndpoint == null) db.AppSettings.Add(new AppSetting { Key = "ApiEndpoint", Value = "https://generativelanguage.googleapis.com/v1beta/models/" });
+
+            var defaultModel = db.AppSettings.Find("AiModel");
+            if (defaultModel == null) db.AppSettings.Add(new AppSetting { Key = "AiModel", Value = "gemma-4-31b-it" });
+
+            db.SaveChanges();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -42,6 +41,9 @@ namespace AIStudyHub.Data
             modelBuilder.Entity<Subject>().ToTable("SUBJECT");
             modelBuilder.Entity<TaskItem>().ToTable("TASK");
             modelBuilder.Entity<Document>().ToTable("DOCUMENT");
+            modelBuilder.Entity<ChatMessage>().ToTable("CHAT_MESSAGE");
+            modelBuilder.Entity<DocumentChunk>().ToTable("DOCUMENT_CHUNK");
+            modelBuilder.Entity<AppSetting>().ToTable("APP_SETTING");
 
             // Ràng buộc khoá ngoại (Cascade Delete)
             modelBuilder.Entity<Subject>()
@@ -61,6 +63,19 @@ namespace AIStudyHub.Data
                 .HasOne(d => d.Subject)
                 .WithMany(s => s.Documents)
                 .HasForeignKey(d => d.SubjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ChatMessage>()
+                .HasOne(c => c.Document)
+                .WithMany()
+                .HasForeignKey(c => c.DocumentId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<DocumentChunk>()
+                .HasOne(c => c.Document)
+                .WithMany()
+                .HasForeignKey(c => c.DocumentId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             base.OnModelCreating(modelBuilder);

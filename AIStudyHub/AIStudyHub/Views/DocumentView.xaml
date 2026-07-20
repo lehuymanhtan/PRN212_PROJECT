@@ -2,11 +2,15 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:AIStudyHub.ViewModels"
+             xmlns:conv="clr-namespace:AIStudyHub.Converters"
              xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
              IsVisibleChanged="UserControl_IsVisibleChanged">
 
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <conv:RoleToAlignConverter x:Key="RoleToAlignConv" />
+        <conv:RoleToBgConverter x:Key="RoleToBgConv" />
+        <conv:RoleToFgConverter x:Key="RoleToFgConv" />
     </UserControl.Resources>
 
     <UserControl.DataContext>
@@ -24,7 +28,17 @@
         </Grid.RowDefinitions>
 
         <!-- HEADER TOOLBAR -->
-        <Border Grid.Row="0" Style="{StaticResource CardStyle}" Padding="16" Margin="0,0,0,16">
+        <Border Grid.Row="0" Padding="16" Margin="0,0,0,16">
+            <Border.Style>
+                <Style TargetType="Border" BasedOn="{StaticResource CardStyle}">
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsViewerOpen}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>

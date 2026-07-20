@@ -70,7 +70,68 @@ namespace AIStudyHub.Services
             dbContext.Documents.Add(document);
             await dbContext.SaveChangesAsync();
 
+            // RAG Chunking: Trích xuất và băm văn bản sau khi lưu
+            try
+            {
+                if (fileType == "PDF")
+                {
+                    using var pdfViewer = new PdfViewerService();
+                    pdfViewer.LoadPdf(destinationFilePath);
+                    var fullText = pdfViewer.GetAllText();
+                    
+                    if (!string.IsNullOrWhiteSpace(fullText))
+                    {
+                        var chunks = SplitIntoChunks(fullText, 1000); // Mỗi đoạn 1000 ký tự
+                        for (int i = 0; i < chunks.Count; i++)
+                        {
+                            dbContext.DocumentChunks.Add(new DocumentChunk
+                            {
+                                DocumentId = document.Id,
+                                ChunkIndex = i,
+                                Content = chunks[i]
+                            });
+                        }
+                        await dbContext.SaveChangesAsync();
+                    }
+                }
+                else if (fileType == "DOCX" || fileType == "DOC")
+                {
+                    var converter = new Mammoth.DocumentConverter();
+                    var result = converter.ExtractRawText(destinationFilePath);
+                    var fullText = result.Value;
+
+                    if (!string.IsNullOrWhiteSpace(fullText))
+                    {
+                        var chunks = SplitIntoChunks(fullText, 1000);
+                        for (int i = 0; i < chunks.Count; i++)
+                        {
+                            dbContext.DocumentChunks.Add(new DocumentChunk
+                            {
+                                DocumentId = document.Id,
+                                ChunkIndex = i,
+                                Content = chunks[i]
+                            });
+                        }
+                        await dbContext.SaveChangesAsync();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // Bỏ qua lỗi Chunking nếu có để không làm gián đoạn việc upload
+            }
+
             return document;
+        }
+
+        private List<string> SplitIntoChunks(string text, int chunkSize)
+        {
+            var chunks = new List<string>();
+            for (int i = 0; i < text.Length; i += chunkSize)
+            {
+                chunks.Add(text.Substring(i, Math.Min(chunkSize, text.Length - i)));
+            }
+            return chunks;
         }
 
         /// <summary>
