@@ -4,7 +4,7 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="system" parent="1" style="swimlane;whiteSpace=wrap;html=1;startSize=30;fillColor=#f5f5f5;fontStyle=1;fontSize=14;" value="AI Study Hub System (Future Scope)" vertex="1">
+        <mxCell id="system" parent="1" style="swimlane;whiteSpace=wrap;html=1;startSize=30;fillColor=#f5f5f5;fontStyle=1;fontSize=14;" value="AI Study Hub System" vertex="1">
           <mxGeometry height="720" width="600" x="180" y="50" as="geometry" />
         </mxCell>
         <mxCell id="uc_manage_course" parent="system" style="ellipse;whiteSpace=wrap;html=1;" value="Quản lý Môn học" vertex="1">
@@ -19,10 +19,10 @@
         <mxCell id="uc_read_pdf" parent="system" style="ellipse;whiteSpace=wrap;html=1;" value="Đọc &amp; Ghi chú PDF" vertex="1">
           <mxGeometry height="50" width="140" x="40" y="320" as="geometry" />
         </mxCell>
-        <mxCell id="uc_track_progress" parent="system" style="ellipse;whiteSpace=wrap;html=1;" value="Theo dõi Tiến độ học" vertex="1">
+        <mxCell id="uc_track_progress" parent="system" style="ellipse;whiteSpace=wrap;html=1;" value="Ôn tập Flashcard&#xa;(Spaced Repetition)" vertex="1">
           <mxGeometry height="50" width="140" x="40" y="520" as="geometry" />
         </mxCell>
-        <mxCell id="uc_auto_schedule" parent="system" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="Tự động lên Lịch học" vertex="1">
+        <mxCell id="uc_ai_agent" parent="system" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="Thực thi tự động&#xa;(AI Agent)" vertex="1">
           <mxGeometry height="50" width="140" x="400" y="140" as="geometry" />
         </mxCell>
         <mxCell id="uc_context_lookup" parent="system" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="Tra cứu ngữ cảnh&#xa;(Giải thích, Dịch)" vertex="1">
@@ -34,15 +34,10 @@
         <mxCell id="uc_ai_chat" parent="system" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="Chat với Tài liệu" vertex="1">
           <mxGeometry height="50" width="140" x="400" y="400" as="geometry" />
         </mxCell>
-        <mxCell id="uc_auto_flashcard" parent="system" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="Sinh Flashcard/Quiz" vertex="1">
+        <mxCell id="uc_auto_flashcard" parent="system" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="Tạo Flashcard" vertex="1">
           <mxGeometry height="50" width="140" x="400" y="480" as="geometry" />
         </mxCell>
-        <mxCell id="uc_evaluate_knowledge" parent="system" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="Đánh giá năng lực" vertex="1">
-          <mxGeometry height="50" width="140" x="400" y="580" as="geometry" />
-        </mxCell>
-        <mxCell id="uc_learning_path" parent="system" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="Gợi ý Lộ trình học" vertex="1">
-          <mxGeometry height="50" width="140" x="400" y="660" as="geometry" />
-        </mxCell>
+
         <mxCell id="ext1" edge="1" parent="system" source="uc_context_lookup" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" target="uc_read_pdf" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
@@ -52,9 +47,7 @@
         <mxCell id="ext3" edge="1" parent="system" source="uc_ai_chat" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;exitX=0.071;exitY=0.25;entryX=1;entryY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;" target="uc_read_pdf" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="inc1" edge="1" parent="system" source="uc_evaluate_knowledge" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;exitX=0.5;exitY=0;entryX=0.5;entryY=1;" target="uc_auto_flashcard" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
+
         <mxCell id="actor_student" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Sinh viên" vertex="1">
           <mxGeometry height="100" width="50" x="40" y="360" as="geometry" />
         </mxCell>
@@ -79,10 +72,13 @@
         <mxCell id="st_to_ai_chat" edge="1" parent="1" source="actor_student" style="endArrow=none;html=1;" target="uc_ai_chat">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="st_to_eval" edge="1" parent="1" source="actor_student" style="endArrow=none;html=1;" target="uc_evaluate_knowledge">
+        <mxCell id="st_to_ai_agent" edge="1" parent="1" source="actor_student" style="endArrow=none;html=1;" target="uc_ai_agent">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="ai_to_sched" edge="1" parent="1" source="actor_ai" style="endArrow=none;html=1;" target="uc_auto_schedule">
+        <mxCell id="st_to_flashcard" edge="1" parent="1" source="actor_student" style="endArrow=none;html=1;" target="uc_auto_flashcard">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ai_to_sched" edge="1" parent="1" source="actor_ai" style="endArrow=none;html=1;" target="uc_ai_agent">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="ai_to_lookup" edge="1" parent="1" source="actor_ai" style="endArrow=none;html=1;" target="uc_context_lookup">
@@ -95,12 +91,6 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="ai_to_flash" edge="1" parent="1" source="actor_ai" style="endArrow=none;html=1;" target="uc_auto_flashcard">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="ai_to_eval" edge="1" parent="1" source="actor_ai" style="endArrow=none;html=1;" target="uc_evaluate_knowledge">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="ai_to_path" edge="1" parent="1" source="actor_ai" style="endArrow=none;html=1;" target="uc_learning_path">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
       </root>

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -7,6 +8,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using AIStudyHub.Data;
@@ -412,6 +416,29 @@ namespace AIStudyHub.ViewModels
 
             // PdfiumViewer dùng 0-indexed cho trang
             CurrentPageImage = _pdfViewerService.RenderPage(CurrentPageNumber - 1, ZoomFactor, RotationDegrees);
+        }
+
+        [RelayCommand]
+        private void ContextualAI(string actionParameter)
+        {
+            if (string.IsNullOrWhiteSpace(actionParameter)) return;
+
+            var parts = actionParameter.Split(new[] { '|' }, 2);
+            if (parts.Length < 2) return;
+
+            string action = parts[0];
+            string text = parts[1];
+
+            string prompt = action switch
+            {
+                "Translate" => $"Dịch đoạn văn bản sau sang tiếng Việt: \"{text}\"",
+                "Summarize" => $"Tóm tắt ngắn gọn đoạn văn bản sau: \"{text}\"",
+                "Explain" => $"Giải thích chi tiết thuật ngữ hoặc đoạn văn bản sau: \"{text}\"",
+                _ => text
+            };
+
+            // Gửi tin nhắn qua Messenger tới MainViewModel để mở Sidebar và tự động hỏi
+            WeakReferenceMessenger.Default.Send(new ValueChangedMessage<string>($"ContextualAI|{prompt}"));
         }
     }
 }
