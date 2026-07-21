@@ -5,11 +5,6 @@
              xmlns:conv="clr-namespace:AIStudyHub.Converters"
              Background="{StaticResource AppBgBrush}">
 
-    <!-- Ráp ViewModel vào View theo chuẩn MVVM -->
-    <UserControl.DataContext>
-        <vm:TaskViewModel />
-    </UserControl.DataContext>
-
     <!-- Khai báo Resource Converters -->
     <UserControl.Resources>
         <conv:StatusToColorConverter x:Key="StatusToColor"/>

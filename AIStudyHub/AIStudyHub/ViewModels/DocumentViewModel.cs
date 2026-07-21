@@ -53,7 +53,7 @@ namespace AIStudyHub.ViewModels
         private string _documentTextContent = string.Empty;
 
         [ObservableProperty]
-        private Uri? _currentViewerUrl;
+        private Uri? _currentViewerUrl = new Uri("about:blank");
 
         [ObservableProperty]
         private string _currentTitle = string.Empty;
@@ -148,8 +148,8 @@ namespace AIStudyHub.ViewModels
 
             var dialog = new OpenFileDialog
             {
-                Title = "Chọn các file tài liệu PDF hoặc Word để tải lên",
-                Filter = "Tài liệu học tập (*.pdf;*.docx;*.doc)|*.pdf;*.docx;*.doc|PDF Files (*.pdf)|*.pdf|Word Files (*.docx;*.doc)|*.docx;*.doc|All Files (*.*)|*.*",
+                Title = "Chọn các file tài liệu để tải lên",
+                Filter = "Tài liệu học tập (*.pdf;*.docx;*.doc;*.pptx;*.ppt;*.xlsx;*.xls;*.txt;*.md)|*.pdf;*.docx;*.doc;*.pptx;*.ppt;*.xlsx;*.xls;*.txt;*.md|PDF Files (*.pdf)|*.pdf|Word Files (*.docx;*.doc)|*.docx;*.doc|PowerPoint (*.pptx;*.ppt)|*.pptx;*.ppt|Excel (*.xlsx;*.xls)|*.xlsx;*.xls|Text/Markdown (*.txt;*.md)|*.txt;*.md|All Files (*.*)|*.*",
                 Multiselect = true
             };
 
@@ -204,30 +204,64 @@ namespace AIStudyHub.ViewModels
             IsViewerOpen = true;
 
             string displayPath = document.FilePath;
+            var fileTypeLower = document.FileType?.ToUpperInvariant();
 
-            if (string.Equals(document.FileType, "PDF", StringComparison.OrdinalIgnoreCase))
+            if (fileTypeLower == "PDF")
             {
                 IsPdfDocument = true;
                 StatusMessage = $"Đang đọc PDF: {document.Title} (Xem toàn bộ trang & Bôi đen copy chữ)";
             }
-            else
+            else if (fileTypeLower is "PPTX" or "PPT" or "XLSX" or "XLS")
             {
+                // Các định dạng không có viewer tích hợp — mở bằng ứng dụng mặc định của hệ thống
                 IsPdfDocument = false;
-                StatusMessage = $"Đang đọc Word: {document.Title} (Đúng bố cục Word không giới hạn trang & Bôi đen copy chữ)";
-
+                StatusMessage = $"Đang mở {document.FileType}: {document.Title} bằng ứng dụng mặc định";
                 try
                 {
-                    string cacheDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AIStudyHub", "Cache");
-                    Directory.CreateDirectory(cacheDir);
-                    displayPath = Path.Combine(cacheDir, $"{document.Id}.html");
-
-                    if (!File.Exists(displayPath) || File.GetLastWriteTime(document.FilePath) > File.GetLastWriteTime(displayPath))
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                     {
-                        var converter = new Mammoth.DocumentConverter();
-                        var result = converter.ConvertToHtml(document.FilePath);
-                        string htmlBody = result.Value ?? string.Empty;
+                        FileName = document.FilePath,
+                        UseShellExecute = true
+                    });
+                }
+                catch { }
+                return;
+            }
+            else
+            {
+                // DOCX, DOC, TXT, MD — hiển thị trong WebView dưới dạng HTML
+                IsPdfDocument = false;
 
-                        string styledHtml = $@"<!DOCTYPE html>
+                string cacheDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AIStudyHub", "Cache");
+                Directory.CreateDirectory(cacheDir);
+                displayPath = Path.Combine(cacheDir, $"{document.Id}.html");
+
+                if (!File.Exists(displayPath) || File.GetLastWriteTime(document.FilePath) > File.GetLastWriteTime(displayPath))
+                {
+                    string htmlBody;
+                    if (fileTypeLower is "TXT" or "MD")
+                    {
+                        var raw = File.ReadAllText(document.FilePath);
+                        // Escape HTML entities and wrap in <pre> for plain text / markdown
+                        htmlBody = $"<pre style='white-space:pre-wrap;word-break:break-word'>{System.Security.SecurityElement.Escape(raw)}</pre>";
+                        StatusMessage = $"Đang đọc {document.FileType}: {document.Title}";
+                    }
+                    else
+                    {
+                        try
+                        {
+                            var converter = new Mammoth.DocumentConverter();
+                            var result = converter.ConvertToHtml(document.FilePath);
+                            htmlBody = result.Value ?? string.Empty;
+                            StatusMessage = $"Đang đọc Word: {document.Title} (Đúng bố cục Word không giới hạn trang & Bôi đen copy chữ)";
+                        }
+                        catch
+                        {
+                            htmlBody = "<p>Không thể hiển thị tài liệu này.</p>";
+                        }
+                    }
+
+                    string styledHtml = $@"<!DOCTYPE html>
 <html>
 <head>
 <meta charset='utf-8'>
@@ -278,6 +312,11 @@ namespace AIStudyHub.ViewModels
     max-width: 100%;
     height: auto;
   }}
+  pre {{
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+  }}
 </style>
 </head>
 <body>
@@ -286,10 +325,8 @@ namespace AIStudyHub.ViewModels
   </div>
 </body>
 </html>";
-                        File.WriteAllText(displayPath, styledHtml, System.Text.Encoding.UTF8);
-                    }
+                    File.WriteAllText(displayPath, styledHtml, System.Text.Encoding.UTF8);
                 }
-                catch { }
             }
 
             try

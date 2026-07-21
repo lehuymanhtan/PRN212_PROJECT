@@ -3,11 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:AIStudyHub.ViewModels">
 
-    <!-- Ráp ViewModel vào View -->
-    <UserControl.DataContext>
-        <vm:SubjectViewModel />
-    </UserControl.DataContext>
-
     <Grid Margin="24"><ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0">
         <StackPanel>
 

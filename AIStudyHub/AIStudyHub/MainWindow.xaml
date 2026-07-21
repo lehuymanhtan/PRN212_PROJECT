@@ -4,6 +4,7 @@
         xmlns:views="clr-namespace:AIStudyHub.Views"
         xmlns:vm="clr-namespace:AIStudyHub.ViewModels"
         xmlns:conv="clr-namespace:AIStudyHub.Converters"
+        xmlns:mdxaml="clr-namespace:MdXaml;assembly=MdXaml"
         Title="AI Study Hub" Height="720" Width="1200" MinWidth="1200" MinHeight="768"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource AppBgBrush}"
@@ -223,34 +224,161 @@
                         </Border>
                         <Button Grid.Column="1" Margin="8,0,0,0" Width="36" Height="36"
                                 Command="{Binding SendChatMessageCommand}"
-                                Style="{StaticResource PrimaryButtonStyle}" Padding="0" Content="➤"
-                                FontSize="14"/>
+                                Padding="0">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsChatLoading}" Value="True">
+                                            <Setter Property="IsEnabled" Value="False"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <Grid>
+                                <TextBlock Text="➤" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsChatLoading}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <TextBlock Text="↻" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                                    <TextBlock.RenderTransform>
+                                        <RotateTransform Angle="0"/>
+                                    </TextBlock.RenderTransform>
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsChatLoading}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <DataTrigger.EnterActions>
+                                                        <BeginStoryboard Name="SpinAnimation">
+                                                            <Storyboard>
+                                                                <DoubleAnimation 
+                                                                    Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)" 
+                                                                    From="0" To="360" Duration="0:0:1" RepeatBehavior="Forever"/>
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </DataTrigger.EnterActions>
+                                                    <DataTrigger.ExitActions>
+                                                        <StopStoryboard BeginStoryboardName="SpinAnimation"/>
+                                                    </DataTrigger.ExitActions>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                        </Button>
                     </Grid>
                 </Border>
 
-                <!-- Chat Messages (Tự động cuộn ScrollViewer bên trong ListView) -->
-                <ListView ItemsSource="{Binding ChatMessages}" 
-                          BorderThickness="0" Background="Transparent" 
-                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                          ScrollViewer.VerticalScrollBarVisibility="Auto"
-                          ScrollViewer.CanContentScroll="False">
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Margin="0,8,0,8" Width="270">
-                                <TextBlock Text="{Binding Role}" Style="{StaticResource CaptionStyle}" 
-                                           HorizontalAlignment="{Binding Role, Converter={StaticResource RoleToAlignConv}}" 
-                                           Margin="0,0,0,4"/>
-                                <Border Background="{Binding Role, Converter={StaticResource RoleToBgConv}}" 
-                                        CornerRadius="10" Padding="12,10"
-                                        HorizontalAlignment="{Binding Role, Converter={StaticResource RoleToAlignConv}}">
-                                    <TextBlock Text="{Binding Content}" FontSize="13" 
-                                               Foreground="{Binding Role, Converter={StaticResource RoleToFgConv}}" 
-                                               TextWrapping="Wrap"/>
-                                </Border>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
+                <!-- Loading indicator moved to Send Button -->
+
+                <!-- Chat Messages (Declared last so it fills the remaining space) -->
+                <Grid>
+                    <!-- Welcome screen: visible when no messages and not loading -->
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20"
+                                Opacity="0.75">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsChatLoading}" Value="False"/>
+                                            <Condition Binding="{Binding ChatMessages.Count}" Value="0"/>
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        <TextBlock Text="🤖" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                        <TextBlock Text="Xin chào! Tôi là AI Study Assistant" FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Center"
+                                   TextWrapping="Wrap" TextAlignment="Center"/>
+                        <TextBlock Margin="0,8,0,0" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
+                                   HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"
+                                   Text="Mở một tài liệu rồi hỏi tôi bất cứ điều gì!&#x0a;Ví dụ: 'Tóm tắt tài liệu này' hoặc 'Giải thích khái niệm X'"/>
+                    </StackPanel>
+
+                    <!-- Messages list -->
+                    <ListView ItemsSource="{Binding ChatMessages}"
+                              BorderThickness="0" Background="Transparent"
+                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              ScrollViewer.CanContentScroll="False">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Focusable" Value="False"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListViewItem">
+                                            <ContentPresenter />
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,8,0,8" Width="270">
+                                    <TextBlock Text="{Binding Role}" Style="{StaticResource CaptionStyle}"
+                                               HorizontalAlignment="{Binding Role, Converter={StaticResource RoleToAlignConv}}"
+                                               Margin="0,0,0,4"/>
+                                    <Border Background="{Binding Role, Converter={StaticResource RoleToBgConv}}"
+                                            CornerRadius="10" Padding="12,10"
+                                            HorizontalAlignment="{Binding Role, Converter={StaticResource RoleToAlignConv}}">
+                                        <!-- Grid to hold both user TextBox and AI MarkdownScrollViewer -->
+                                        <Grid>
+                                            <!-- User messages: Selectable TextBox -->
+                                            <TextBox Text="{Binding Content, Mode=OneWay}" FontSize="13"
+                                                     Foreground="{Binding Role, Converter={StaticResource RoleToFgConv}}"
+                                                     TextWrapping="Wrap" IsReadOnly="True" BorderThickness="0"
+                                                     Background="Transparent" Padding="0" Cursor="IBeam">
+                                                <TextBox.Style>
+                                                    <Style TargetType="TextBox">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Role}" Value="user">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBox.Style>
+                                            </TextBox>
+                                            <!-- AI messages: Markdown renderer -->
+                                            <mdxaml:MarkdownScrollViewer Markdown="{Binding Content}"
+                                                                         FontSize="13" MaxWidth="230"
+                                                                         HorizontalScrollBarVisibility="Disabled"
+                                                                         VerticalScrollBarVisibility="Disabled"
+                                                                         PreviewMouseWheel="MarkdownScrollViewer_PreviewMouseWheel">
+                                                <mdxaml:MarkdownScrollViewer.Style>
+                                                    <Style TargetType="mdxaml:MarkdownScrollViewer">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Role}" Value="model">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </mdxaml:MarkdownScrollViewer.Style>
+                                            </mdxaml:MarkdownScrollViewer>
+                                        </Grid>
+                                    </Border>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
             </DockPanel>
 
             <!-- New Chat Warning Popup -->

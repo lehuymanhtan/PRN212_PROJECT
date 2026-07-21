@@ -26,5 +26,20 @@ namespace AIStudyHub
                 }
             }
         }
+
+        private void MarkdownScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                e.Handled = true;
+                var eventArg = new System.Windows.Input.MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta)
+                {
+                    RoutedEvent = UIElement.MouseWheelEvent,
+                    Source = sender
+                };
+                var parent = ((System.Windows.FrameworkElement)sender).Parent as UIElement;
+                parent?.RaiseEvent(eventArg);
+            }
+        }
     }
 }

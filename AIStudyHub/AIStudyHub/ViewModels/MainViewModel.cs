@@ -47,7 +47,7 @@ namespace AIStudyHub.ViewModels
         public MainViewModel()
         {
             _currentViewModel = new TaskViewModel();
-            LoadGlobalChatHistory();
+            ClearAllChatHistoryOnStartup();
 
             WeakReferenceMessenger.Default.Register<MainViewModel, ValueChangedMessage<string>>(this, (r, m) => 
             {
@@ -60,12 +60,12 @@ namespace AIStudyHub.ViewModels
             });
         }
 
-        private void LoadGlobalChatHistory()
+        private void ClearAllChatHistoryOnStartup()
         {
             using var db = new Data.AppDbContext();
-            // Lấy các tin nhắn có DocumentId = null (Global chat)
-            var history = System.Linq.Enumerable.ToList(System.Linq.Enumerable.OrderBy(System.Linq.Queryable.Where(db.ChatMessages, c => c.DocumentId == null), c => c.CreatedAt));
-            ChatMessages = new System.Collections.ObjectModel.ObservableCollection<Models.ChatMessage>(history);
+            db.ChatMessages.RemoveRange(db.ChatMessages);
+            db.SaveChanges();
+            ChatMessages.Clear();
         }
 
         [RelayCommand]

@@ -22,22 +22,27 @@ namespace AIStudyHub.Services
         }
 
         /// <summary>
-        /// Upload file PDF hoặc Word từ máy vào thư mục App Data và lưu đường dẫn vào DB
+        /// Upload file từ máy vào thư mục App Data và lưu đường dẫn vào DB
+        /// Hỗ trợ: PDF, DOCX, DOC, PPTX, PPT, XLSX, XLS, TXT, MD
         /// </summary>
         public async Task<Document> UploadDocumentAsync(string sourceFilePath, Guid subjectId, string? customTitle = null)
         {
             if (!File.Exists(sourceFilePath))
-            {
                 throw new FileNotFoundException("Không tìm thấy file nguồn.", sourceFilePath);
-            }
 
             var fileExtension = Path.GetExtension(sourceFilePath).ToUpperInvariant();
             string fileType = fileExtension switch
             {
-                ".PDF" => "PDF",
+                ".PDF"  => "PDF",
                 ".DOCX" => "DOCX",
-                ".DOC" => "DOC",
-                _ => fileExtension.TrimStart('.')
+                ".DOC"  => "DOC",
+                ".PPTX" => "PPTX",
+                ".PPT"  => "PPT",
+                ".XLSX" => "XLSX",
+                ".XLS"  => "XLS",
+                ".TXT"  => "TXT",
+                ".MD"   => "MD",
+                _       => fileExtension.TrimStart('.')
             };
 
             var originalFileName = Path.GetFileName(sourceFilePath);
@@ -60,11 +65,11 @@ namespace AIStudyHub.Services
             using var dbContext = new AppDbContext();
             var document = new Document
             {
-                SubjectId = subjectId,
-                Title = title,
-                FilePath = destinationFilePath,
-                FileType = fileType,
-                UploadedAt = DateTime.Now
+                SubjectId   = subjectId,
+                Title       = title,
+                FilePath    = destinationFilePath,
+                FileType    = fileType,
+                UploadedAt  = DateTime.Now
             };
 
             dbContext.Documents.Add(document);
@@ -73,47 +78,20 @@ namespace AIStudyHub.Services
             // RAG Chunking: Trích xuất và băm văn bản sau khi lưu
             try
             {
-                if (fileType == "PDF")
+                var fullText = ExtractText(destinationFilePath, fileType);
+                if (!string.IsNullOrWhiteSpace(fullText))
                 {
-                    using var pdfViewer = new PdfViewerService();
-                    pdfViewer.LoadPdf(destinationFilePath);
-                    var fullText = pdfViewer.GetAllText();
-                    
-                    if (!string.IsNullOrWhiteSpace(fullText))
+                    var chunks = SplitIntoChunks(fullText, 1000);
+                    for (int i = 0; i < chunks.Count; i++)
                     {
-                        var chunks = SplitIntoChunks(fullText, 1000); // Mỗi đoạn 1000 ký tự
-                        for (int i = 0; i < chunks.Count; i++)
+                        dbContext.DocumentChunks.Add(new DocumentChunk
                         {
-                            dbContext.DocumentChunks.Add(new DocumentChunk
-                            {
-                                DocumentId = document.Id,
-                                ChunkIndex = i,
-                                Content = chunks[i]
-                            });
-                        }
-                        await dbContext.SaveChangesAsync();
+                            DocumentId = document.Id,
+                            ChunkIndex = i,
+                            Content    = chunks[i]
+                        });
                     }
-                }
-                else if (fileType == "DOCX" || fileType == "DOC")
-                {
-                    var converter = new Mammoth.DocumentConverter();
-                    var result = converter.ExtractRawText(destinationFilePath);
-                    var fullText = result.Value;
-
-                    if (!string.IsNullOrWhiteSpace(fullText))
-                    {
-                        var chunks = SplitIntoChunks(fullText, 1000);
-                        for (int i = 0; i < chunks.Count; i++)
-                        {
-                            dbContext.DocumentChunks.Add(new DocumentChunk
-                            {
-                                DocumentId = document.Id,
-                                ChunkIndex = i,
-                                Content = chunks[i]
-                            });
-                        }
-                        await dbContext.SaveChangesAsync();
-                    }
+                    await dbContext.SaveChangesAsync();
                 }
             }
             catch (Exception)
@@ -124,13 +102,121 @@ namespace AIStudyHub.Services
             return document;
         }
 
-        private List<string> SplitIntoChunks(string text, int chunkSize)
+        /// <summary>
+        /// Trích xuất văn bản thuần từ file dựa theo loại file.
+        /// </summary>
+        private static string ExtractText(string filePath, string fileType)
+        {
+            switch (fileType.ToUpperInvariant())
+            {
+                case "PDF":
+                {
+                    using var pdfViewer = new PdfViewerService();
+                    pdfViewer.LoadPdf(filePath);
+                    return pdfViewer.GetAllText();
+                }
+
+                case "DOCX":
+                case "DOC":
+                {
+                    var converter = new Mammoth.DocumentConverter();
+                    return converter.ExtractRawText(filePath).Value;
+                }
+
+                case "PPTX":
+                {
+                    // DocumentFormat.OpenXml for PPTX text extraction
+                    using var prs = DocumentFormat.OpenXml.Packaging.PresentationDocument.Open(filePath, false);
+                    var sb           = new System.Text.StringBuilder();
+                    var presentation = prs.PresentationPart?.Presentation;
+                    if (presentation?.SlideIdList != null)
+                    {
+                        foreach (var slideId in presentation.SlideIdList
+                            .Elements<DocumentFormat.OpenXml.Presentation.SlideId>())
+                        {
+                            var relId = slideId.RelationshipId?.Value;
+                            if (relId == null) continue;
+                            var slidePart = (DocumentFormat.OpenXml.Packaging.SlidePart)
+                                prs.PresentationPart!.GetPartById(relId);
+                            foreach (var para in slidePart.Slide
+                                .Descendants<DocumentFormat.OpenXml.Drawing.Paragraph>())
+                            {
+                                var line = string.Concat(
+                                    para.Descendants<DocumentFormat.OpenXml.Drawing.Run>()
+                                        .Select(r => r.Text?.Text ?? string.Empty));
+                                if (!string.IsNullOrWhiteSpace(line))
+                                    sb.AppendLine(line);
+                            }
+                        }
+                    }
+                    return sb.ToString();
+                }
+
+                case "PPT":
+                    // Legacy binary PPT — NPOI HSLF not available for .NET 8.
+                    // Summarization still works via Gemini File API upload.
+                    return string.Empty;
+
+                case "XLSX":
+                {
+                    using var stream = File.OpenRead(filePath);
+                    var wb = new NPOI.XSSF.UserModel.XSSFWorkbook(stream);
+                    var sb = new System.Text.StringBuilder();
+                    for (int si = 0; si < wb.NumberOfSheets; si++)
+                    {
+                        var sheet = wb.GetSheetAt(si);
+                        for (int r = 0; r <= sheet.LastRowNum; r++)
+                        {
+                            var row = sheet.GetRow(r);
+                            if (row == null) continue;
+                            for (int c = 0; c < row.LastCellNum; c++)
+                            {
+                                var cell = row.GetCell(c);
+                                if (cell != null) sb.Append(cell.ToString()).Append('\t');
+                            }
+                            sb.AppendLine();
+                        }
+                    }
+                    return sb.ToString();
+                }
+
+                case "XLS":
+                {
+                    using var stream = File.OpenRead(filePath);
+                    var wb = new NPOI.HSSF.UserModel.HSSFWorkbook(stream);
+                    var sb = new System.Text.StringBuilder();
+                    for (int si = 0; si < wb.NumberOfSheets; si++)
+                    {
+                        var sheet = wb.GetSheetAt(si);
+                        for (int r = 0; r <= sheet.LastRowNum; r++)
+                        {
+                            var row = sheet.GetRow(r);
+                            if (row == null) continue;
+                            for (int c = 0; c < row.LastCellNum; c++)
+                            {
+                                var cell = row.GetCell(c);
+                                if (cell != null) sb.Append(cell.ToString()).Append('\t');
+                            }
+                            sb.AppendLine();
+                        }
+                    }
+                    return sb.ToString();
+                }
+
+                case "TXT":
+                case "MD":
+                    return File.ReadAllText(filePath);
+
+                default:
+                    return string.Empty;
+            }
+        }
+
+        private static List<string> SplitIntoChunks(string text, int chunkSize)
         {
             var chunks = new List<string>();
             for (int i = 0; i < text.Length; i += chunkSize)
-            {
                 chunks.Add(text.Substring(i, Math.Min(chunkSize, text.Length - i)));
-            }
             return chunks;
         }
 
@@ -143,9 +229,7 @@ namespace AIStudyHub.Services
             var query = dbContext.Documents.Include(d => d.Subject).AsQueryable();
 
             if (subjectId.HasValue && subjectId.Value != Guid.Empty)
-            {
                 query = query.Where(d => d.SubjectId == subjectId.Value);
-            }
 
             return query.OrderByDescending(d => d.UploadedAt).ToList();
         }
@@ -168,9 +252,7 @@ namespace AIStudyHub.Services
             try
             {
                 if (File.Exists(document.FilePath))
-                {
                     File.Delete(document.FilePath);
-                }
             }
             catch
             {
