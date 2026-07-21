@@ -1,0 +1,73 @@
+<UserControl x:Class="AIStudyHub.Views.AnnotationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AIStudyHub.Views"
+             xmlns:viewmodels="clr-namespace:AIStudyHub.ViewModels"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+    <UserControl.DataContext>
+        <viewmodels:AnnotationViewModel />
+    </UserControl.DataContext>
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        
+        <!-- Mock PDF Document Viewer -->
+        <Border BorderBrush="Gray" BorderThickness="1" Margin="10" Grid.Column="0">
+            <Canvas x:Name="PdfCanvas" Background="#FDFCE5" MouseLeftButtonDown="PdfCanvas_MouseLeftButtonDown">
+                <TextBlock Text="Mock PDF Page - Click here to add annotation" FontSize="20" Foreground="LightGray" Canvas.Left="50" Canvas.Top="50"/>
+                
+                <!-- Displaying existing annotations -->
+                <ItemsControl ItemsSource="{Binding DocumentAnnotations}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Canvas.Left" Value="{Binding PosX}"/>
+                            <Setter Property="Canvas.Top" Value="{Binding PosY}"/>
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="Yellow" BorderBrush="Orange" BorderThickness="1" Padding="5" CornerRadius="3" Opacity="0.8">
+                                <TextBlock Text="{Binding Content}"/>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Canvas>
+        </Border>
+
+        <!-- Right sidebar for selecting annotation type -->
+        <StackPanel Grid.Column="1" Margin="10">
+            <TextBlock Text="Annotations Tool" FontWeight="Bold" FontSize="18" Margin="0,0,0,10"/>
+            <RadioButton x:Name="HighlightRadio" Content="Highlight Tool" IsChecked="True" Margin="0,5"/>
+            <RadioButton x:Name="NoteRadio" Content="Sticky Note Tool" Margin="0,5"/>
+            
+            <TextBlock Text="Content to add:" Margin="0,15,0,5"/>
+            <TextBox x:Name="AnnotationContentText" Text="Sample note..." Height="60" TextWrapping="Wrap"/>
+            
+            <TextBlock Text="Existing Annotations:" FontWeight="Bold" Margin="0,20,0,5"/>
+            <ListBox ItemsSource="{Binding DocumentAnnotations}" Height="300">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="0,0,0,10">
+                            <TextBlock Text="{Binding Type, StringFormat='Type: {0}'}" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding Content, StringFormat='Text: {0}'}" TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding PosX, StringFormat='X: {0:F1}'}" Foreground="Gray" FontSize="10"/>
+                            <TextBlock Text="{Binding PosY, StringFormat='Y: {0:F1}'}" Foreground="Gray" FontSize="10"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+    </Grid>
+</UserControl>

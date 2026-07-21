@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
+using AIStudyHub.Messages;
 
 namespace AIStudyHub.ViewModels
 {
@@ -33,6 +34,7 @@ namespace AIStudyHub.ViewModels
         public bool IsTasksActive => CurrentViewModel is TaskViewModel;
         public bool IsDocumentsActive => CurrentViewModel is DocumentViewModel;
         public bool IsSettingsActive => CurrentViewModel is SettingsViewModel;
+        public bool IsFlashcardsActive => CurrentViewModel is FlashcardViewModel;
 
         partial void OnCurrentViewModelChanged(ObservableObject? value)
         {
@@ -41,6 +43,7 @@ namespace AIStudyHub.ViewModels
             OnPropertyChanged(nameof(IsTasksActive));
             OnPropertyChanged(nameof(IsDocumentsActive));
             OnPropertyChanged(nameof(IsSettingsActive));
+            OnPropertyChanged(nameof(IsFlashcardsActive));
         }
 
 
@@ -57,6 +60,16 @@ namespace AIStudyHub.ViewModels
                     r.ChatInputText = m.Value.Substring(13);
                     _ = r.SendChatMessageAsync();
                 }
+            });
+
+            WeakReferenceMessenger.Default.Register<MainViewModel, ReviewDeckMessage>(this, (r, m) =>
+            {
+                r.CurrentViewModel = new FlashcardViewModel(m.Value);
+            });
+
+            WeakReferenceMessenger.Default.Register<MainViewModel, BackToDecksMessage>(this, (r, m) =>
+            {
+                r.CurrentViewModel = new FlashcardDeckViewModel();
             });
         }
 
@@ -191,6 +204,9 @@ namespace AIStudyHub.ViewModels
 
         [RelayCommand]
         private void NavigateToDocuments() => CurrentViewModel = new DocumentViewModel();
+
+        [RelayCommand]
+        private void NavigateToFlashcards() => CurrentViewModel = new FlashcardDeckViewModel();
 
         [RelayCommand]
         private void NavigateToSettings() => CurrentViewModel = new SettingsViewModel();

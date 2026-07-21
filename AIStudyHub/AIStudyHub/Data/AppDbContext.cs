@@ -9,9 +9,12 @@ namespace AIStudyHub.Data
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<TaskItem> Tasks { get; set; }
         public DbSet<Document> Documents { get; set; }
+        public DbSet<FlashcardDeck> FlashcardDecks { get; set; }
+        public DbSet<Flashcard> Flashcards { get; set; }
+        public DbSet<Annotation> Annotations { get; set; }
+        public DbSet<AppSetting> AppSettings { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<DocumentChunk> DocumentChunks { get; set; }
-        public DbSet<AppSetting> AppSettings { get; set; }
 
         public static void InitializeDatabase()
         {
@@ -41,6 +44,7 @@ namespace AIStudyHub.Data
             modelBuilder.Entity<Subject>().ToTable("SUBJECT");
             modelBuilder.Entity<TaskItem>().ToTable("TASK");
             modelBuilder.Entity<Document>().ToTable("DOCUMENT");
+            modelBuilder.Entity<FlashcardDeck>().ToTable("FLASHCARD_DECK");
             modelBuilder.Entity<ChatMessage>().ToTable("CHAT_MESSAGE");
             modelBuilder.Entity<DocumentChunk>().ToTable("DOCUMENT_CHUNK");
             modelBuilder.Entity<AppSetting>().ToTable("APP_SETTING");
@@ -99,6 +103,46 @@ namespace AIStudyHub.Data
                     CreatedAt TEXT NOT NULL,
                     CONSTRAINT FK_TASK_SUBJECT FOREIGN KEY (SubjectId)
                         REFERENCES SUBJECT(Id) ON DELETE CASCADE
+                )
+            ");
+        }
+
+        /// <summary>
+        /// Đảm bảo bảng FLASHCARD và ANNOTATION tồn tại.
+        /// </summary>
+        public void EnsureFlashcardAndAnnotationTablesCreated()
+        {
+            Database.ExecuteSqlRaw(@"
+                CREATE TABLE IF NOT EXISTS FLASHCARD_DECK (
+                    Id TEXT NOT NULL PRIMARY KEY,
+                    SubjectId TEXT NOT NULL,
+                    DocumentId TEXT,
+                    Title TEXT NOT NULL
+                )
+            ");
+
+            Database.ExecuteSqlRaw(@"
+                CREATE TABLE IF NOT EXISTS FLASHCARD (
+                    Id TEXT NOT NULL PRIMARY KEY,
+                    DeckId TEXT NOT NULL,
+                    FrontText TEXT NOT NULL,
+                    BackText TEXT NOT NULL,
+                    NextReviewDate TEXT,
+                    RepetitionCount INTEGER NOT NULL DEFAULT 0,
+                    EaseFactor REAL NOT NULL DEFAULT 2.5,
+                    Interval INTEGER NOT NULL DEFAULT 0
+                )
+            ");
+
+            Database.ExecuteSqlRaw(@"
+                CREATE TABLE IF NOT EXISTS ANNOTATION (
+                    Id TEXT NOT NULL PRIMARY KEY,
+                    DocumentId TEXT NOT NULL,
+                    PageNumber INTEGER NOT NULL,
+                    PosX REAL NOT NULL,
+                    PosY REAL NOT NULL,
+                    Content TEXT,
+                    Type TEXT NOT NULL DEFAULT 'Highlight'
                 )
             ");
         }

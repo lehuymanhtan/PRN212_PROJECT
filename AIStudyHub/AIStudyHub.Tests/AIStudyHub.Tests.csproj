@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="xunit" Version="2.5.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="6.0.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    
+    <!-- Add MVVM Toolkit for ViewModel tests -->
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.1.0" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+  </ItemGroup>
+
+  <!-- IMPORTANT: We link the exact files from the WPF project instead of referencing the project. 
+       This allows building the logic tests on Linux without requiring WPF targeting. -->
+  <ItemGroup>
+    <Compile Include="..\AIStudyHub\Models\Flashcard.cs" Link="Models\Flashcard.cs" />
+    <Compile Include="..\AIStudyHub\Models\FlashcardDeck.cs" Link="Models\FlashcardDeck.cs" />
+    <Compile Include="..\AIStudyHub\Models\Annotation.cs" Link="Models\Annotation.cs" />
+    
+    <Compile Include="..\AIStudyHub\Services\SpacedRepetitionService.cs" Link="Services\SpacedRepetitionService.cs" />
+    
+    <Compile Include="..\AIStudyHub\ViewModels\FlashcardViewModel.cs" Link="ViewModels\FlashcardViewModel.cs" />
+    <Compile Include="..\AIStudyHub\ViewModels\AnnotationViewModel.cs" Link="ViewModels\AnnotationViewModel.cs" />
+  </ItemGroup>
+
+</Project>
