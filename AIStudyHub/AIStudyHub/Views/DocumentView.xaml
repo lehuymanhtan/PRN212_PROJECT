@@ -68,7 +68,18 @@
         </Border>
 
         <!-- STATUS BAR -->
-        <TextBlock Grid.Row="1" Text="{Binding StatusMessage}" Style="{StaticResource BodyStyle}" FontStyle="Italic" Margin="4,0,0,8"/>
+        <TextBlock Grid.Row="1" Text="{Binding StatusMessage}" FontStyle="Italic" Margin="4,0,0,8">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock" BasedOn="{StaticResource BodyStyle}">
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsViewerOpen}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
 
         <!-- 1. MÀN HÌNH DANH SÁCH TÀI LIỆU (Ẩn khi đang mở PDF Viewer) -->
         <Grid Grid.Row="2">
@@ -193,8 +204,6 @@
                         <ColumnDefinition Width="Auto"/>
                         <!-- Tên tài liệu -->
                         <ColumnDefinition Width="*"/>
-                        <!-- Chú thích hỗ trợ bôi đen & cuộn trang -->
-                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
                     <Button Grid.Column="0" Command="{Binding CloseViewerCommand}" 
@@ -217,7 +226,7 @@
 
             <!-- DOCUMENT DISPLAY SURFACE -->
             <Border Grid.Row="1" Background="{StaticResource BorderBrush}" CornerRadius="10" Padding="4">
-                <wv2:WebView2 x:Name="DocumentWebView" Source="{Binding CurrentViewerUrl, TargetNullValue='about:blank', FallbackValue='about:blank'}"/>
+                <wv2:WebView2 x:Name="DocumentWebView" />
             </Border>
         </Grid>
     </Grid>
