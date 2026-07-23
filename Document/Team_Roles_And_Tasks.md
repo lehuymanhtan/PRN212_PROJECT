@@ -48,7 +48,7 @@ Với kiến trúc MVVM, mỗi thành viên sẽ "sở hữu" (own) một tính 
 ### 👤 Thành viên 6: Module Ghi chú (Annotation) & Flashcard (Duy)
 * **Vai trò:** Lập trình viên phát triển tính năng Học tập sâu (Active Learning).
 * **Nhiệm vụ:**
-  * **Code:** Viết module lấy tọa độ chuột trên file PDF để làm tính năng Highlight (tô sáng) hoặc dán Sticky Note. Lưu tọa độ này xuống Database.
+  * **Code:** Viết module lưu ghi chú. Lưu  xuống Database.
   * **Code:** Xây dựng module Flashcard (Thẻ ghi nhớ). Sinh viên có thể lật thẻ ôn tập.
   * **Code:** Viết thuật toán Spaced Repetition (Lặp lại ngắt quãng) đơn giản để tính toán `NextReviewDate` của các thẻ.
 
