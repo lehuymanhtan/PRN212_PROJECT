@@ -17,6 +17,15 @@ namespace AIStudyHub.ViewModels
         [ObservableProperty]
         private string _aiModel = string.Empty;
 
+        public string AppVersion
+        {
+            get
+            {
+                var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+                return version?.ToString() ?? "Unknown";
+            }
+        }
+
         public SettingsViewModel()
         {
             LoadSettings();

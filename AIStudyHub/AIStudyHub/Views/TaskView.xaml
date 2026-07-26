@@ -11,6 +11,7 @@
         <conv:StatusToBorderColorConverter x:Key="StatusToBorderColor"/>
         <conv:TypeToIconConverter x:Key="TypeToIcon"/>
         <conv:TypeToTagColorConverter x:Key="TypeToTagColor"/>
+        <conv:TypeToVietnameseConverter x:Key="TypeToVietnamese"/>
         <conv:DueDateToUrgencyColorConverter x:Key="DueDateToUrgencyColor"/>
         <conv:DueDateToCountdownConverter x:Key="DueDateToCountdown"/>
         <conv:NullableDateToStringConverter x:Key="NullableDateToString"/>
@@ -47,7 +48,7 @@
                                FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
                 </StackPanel>
 
-                <Button Grid.Column="1" Content="+ Thêm Task" Command="{Binding OpenAddFormCommand}" Style="{StaticResource PrimaryButtonStyle}"/>
+                <Button Grid.Column="1" Content="+ Thêm Task" Command="{Binding OpenAddFormCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,60,0"/>
             </Grid>
         </Border>
 
@@ -234,10 +235,7 @@
 
                     <!-- Danh sách task trong cột Todo -->
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12">
-                        <ItemsControl>
-                            <ItemsControl.ItemsSource>
-                                <Binding Path="AllTasks"/>
-                            </ItemsControl.ItemsSource>
+                        <ItemsControl ItemsSource="{Binding TasksView}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <ContentControl>
@@ -246,6 +244,9 @@
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding Status}" Value="Todo">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Chưa làm">
                                                         <Setter Property="Visibility" Value="Visible"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
@@ -277,11 +278,15 @@
                                                             Background="{Binding Type, Converter={StaticResource TypeToTagColor}}">
                                                         <TextBlock FontSize="11" Foreground="White" FontWeight="SemiBold">
                                                             <Run Text="{Binding Type, Converter={StaticResource TypeToIcon}, Mode=OneWay}"/>
-                                                            <Run Text="{Binding Type, Mode=OneWay}"/>
+                                                            <Run Text="{Binding Type, Converter={StaticResource TypeToVietnamese}, Mode=OneWay}"/>
                                                         </TextBlock>
                                                     </Border>
-                                                    <!-- Edit + Delete buttons -->
+                                                    <!-- Actions: Move + Edit + Delete -->
                                                     <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                                        <Button Content="▶" FontSize="12" Background="Transparent" BorderThickness="0"
+                                                                Command="{Binding DataContext.MoveTaskStatusCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                CommandParameter="{Binding}" Cursor="Hand" Padding="4,2" Foreground="#3B82F6"
+                                                                ToolTip="Chuyển sang Đang làm"/>
                                                         <Button Content="✏" FontSize="12" Background="Transparent" BorderThickness="0"
                                                                 Command="{Binding DataContext.OpenEditFormCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                                 CommandParameter="{Binding}" Cursor="Hand" Padding="4,2" Foreground="{StaticResource TextSecondaryBrush}"/>
@@ -338,10 +343,7 @@
                     </Border>
 
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12">
-                        <ItemsControl>
-                            <ItemsControl.ItemsSource>
-                                <Binding Path="AllTasks"/>
-                            </ItemsControl.ItemsSource>
+                        <ItemsControl ItemsSource="{Binding TasksView}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <ContentControl>
@@ -350,6 +352,9 @@
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding Status}" Value="InProgress">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Đang làm">
                                                         <Setter Property="Visibility" Value="Visible"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
@@ -378,10 +383,14 @@
                                                             Background="{Binding Type, Converter={StaticResource TypeToTagColor}}">
                                                         <TextBlock FontSize="11" Foreground="White" FontWeight="SemiBold">
                                                             <Run Text="{Binding Type, Converter={StaticResource TypeToIcon}, Mode=OneWay}"/>
-                                                            <Run Text="{Binding Type, Mode=OneWay}"/>
+                                                            <Run Text="{Binding Type, Converter={StaticResource TypeToVietnamese}, Mode=OneWay}"/>
                                                         </TextBlock>
                                                     </Border>
                                                     <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                                        <Button Content="✓" FontSize="12" Background="Transparent" BorderThickness="0"
+                                                                Command="{Binding DataContext.MoveTaskStatusCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                CommandParameter="{Binding}" Cursor="Hand" Padding="4,2" Foreground="#22C55E"
+                                                                ToolTip="Hoàn thành task"/>
                                                         <Button Content="✏" FontSize="12" Background="Transparent" BorderThickness="0"
                                                                 Command="{Binding DataContext.OpenEditFormCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                                 CommandParameter="{Binding}" Cursor="Hand" Padding="4,2" Foreground="{StaticResource TextSecondaryBrush}"/>
@@ -428,10 +437,7 @@
                     </Border>
 
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12">
-                        <ItemsControl>
-                            <ItemsControl.ItemsSource>
-                                <Binding Path="AllTasks"/>
-                            </ItemsControl.ItemsSource>
+                        <ItemsControl ItemsSource="{Binding TasksView}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <ContentControl>
@@ -440,6 +446,9 @@
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding Status}" Value="Done">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Hoàn thành">
                                                         <Setter Property="Visibility" Value="Visible"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
@@ -467,7 +476,7 @@
                                                             Background="{Binding Type, Converter={StaticResource TypeToTagColor}}">
                                                         <TextBlock FontSize="11" Foreground="White" FontWeight="SemiBold">
                                                             <Run Text="{Binding Type, Converter={StaticResource TypeToIcon}, Mode=OneWay}"/>
-                                                            <Run Text="{Binding Type, Mode=OneWay}"/>
+                                                            <Run Text="{Binding Type, Converter={StaticResource TypeToVietnamese}, Mode=OneWay}"/>
                                                         </TextBlock>
                                                     </Border>
                                                     <StackPanel Grid.Column="2" Orientation="Horizontal">
@@ -590,7 +599,7 @@
                         <StackPanel Grid.Column="0">
                             <TextBlock Text="Deadline" FontSize="13" FontWeight="SemiBold"
                                        Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,6"/>
-                            <DatePicker SelectedDate="{Binding FormDueDate}"
+                            <DatePicker SelectedDate="{Binding FormDueDate}" Language="vi-VN"
                                         FontSize="13" Padding="8,6"/>
                         </StackPanel>
 
@@ -618,16 +627,18 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <Button Grid.Column="0" Content="Huỷ" Command="{Binding CloseFormCommand}"
-                                Background="{StaticResource AppBgBrush}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="14"
-                                FontWeight="SemiBold" Padding="0,12" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}">
+                        <Button Grid.Column="0" Command="{Binding CloseFormCommand}"
+                                Background="{StaticResource AppBgBrush}" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}"
+                                Height="42" Cursor="Hand">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border Background="{TemplateBinding Background}"
                                             BorderBrush="{TemplateBinding BorderBrush}"
                                             BorderThickness="{TemplateBinding BorderThickness}"
-                                            CornerRadius="8" Padding="{TemplateBinding Padding}">
-                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            CornerRadius="8">
+                                        <TextBlock Text="Huỷ" Foreground="{StaticResource TextSecondaryBrush}"
+                                                   FontSize="14" FontWeight="SemiBold"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                 </ControlTemplate>
                             </Button.Template>
