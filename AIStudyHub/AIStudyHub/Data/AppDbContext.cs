@@ -9,6 +9,8 @@ namespace AIStudyHub.Data
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<TaskItem> Tasks { get; set; }
         public DbSet<Document> Documents { get; set; }
+        public DbSet<Flashcard> Flashcards { get; set; }
+        public DbSet<Annotation> Annotations { get; set; }
 
         public static void InitializeDatabase()
         {
@@ -27,6 +29,8 @@ namespace AIStudyHub.Data
                     CONSTRAINT ""FK_DOCUMENT_SUBJECT_SubjectId"" FOREIGN KEY (""SubjectId"") REFERENCES ""SUBJECT"" (""Id"") ON DELETE CASCADE
                 );
             ");
+
+            db.EnsureFlashcardAndAnnotationTablesCreated();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -42,6 +46,8 @@ namespace AIStudyHub.Data
             modelBuilder.Entity<Subject>().ToTable("SUBJECT");
             modelBuilder.Entity<TaskItem>().ToTable("TASK");
             modelBuilder.Entity<Document>().ToTable("DOCUMENT");
+            modelBuilder.Entity<Flashcard>().ToTable("FLASHCARD");
+            modelBuilder.Entity<Annotation>().ToTable("ANNOTATION");
 
             // Ràng buộc khoá ngoại (Cascade Delete)
             modelBuilder.Entity<Subject>()
@@ -84,6 +90,37 @@ namespace AIStudyHub.Data
                     CreatedAt TEXT NOT NULL,
                     CONSTRAINT FK_TASK_SUBJECT FOREIGN KEY (SubjectId)
                         REFERENCES SUBJECT(Id) ON DELETE CASCADE
+                )
+            ");
+        }
+
+        /// <summary>
+        /// Đảm bảo bảng FLASHCARD và ANNOTATION tồn tại.
+        /// </summary>
+        public void EnsureFlashcardAndAnnotationTablesCreated()
+        {
+            Database.ExecuteSqlRaw(@"
+                CREATE TABLE IF NOT EXISTS FLASHCARD (
+                    Id TEXT NOT NULL PRIMARY KEY,
+                    DeckId TEXT NOT NULL,
+                    FrontText TEXT NOT NULL,
+                    BackText TEXT NOT NULL,
+                    NextReviewDate TEXT,
+                    RepetitionCount INTEGER NOT NULL DEFAULT 0,
+                    EaseFactor REAL NOT NULL DEFAULT 2.5,
+                    Interval INTEGER NOT NULL DEFAULT 0
+                )
+            ");
+
+            Database.ExecuteSqlRaw(@"
+                CREATE TABLE IF NOT EXISTS ANNOTATION (
+                    Id TEXT NOT NULL PRIMARY KEY,
+                    DocumentId TEXT NOT NULL,
+                    PageNumber INTEGER NOT NULL,
+                    PosX REAL NOT NULL,
+                    PosY REAL NOT NULL,
+                    Content TEXT,
+                    Type TEXT NOT NULL DEFAULT 'Highlight'
                 )
             ");
         }
