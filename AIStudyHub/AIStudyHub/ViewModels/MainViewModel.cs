@@ -2,6 +2,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
+using System;
+using System.Windows.Threading;
 using AIStudyHub.Messages;
 
 namespace AIStudyHub.ViewModels
@@ -28,6 +30,24 @@ namespace AIStudyHub.ViewModels
 
         [ObservableProperty]
         private bool _doNotShowNewChatWarning = false;
+
+        [ObservableProperty]
+        private bool _isFocusTimerPopupOpen = false;
+
+        [ObservableProperty]
+        private bool _isTimerRunning = false;
+
+        [ObservableProperty]
+        private string _timerDisplay = "Hẹn giờ tập trung";
+
+        [ObservableProperty]
+        private int _customTimerHours = 0;
+
+        [ObservableProperty]
+        private int _customTimerMinutes = 25;
+
+        private TimeSpan _timerRemaining;
+        private DispatcherTimer? _focusTimer;
 
         public bool IsDashboardActive => CurrentViewModel is DashboardViewModel;
         public bool IsSubjectsActive => CurrentViewModel is SubjectViewModel;
@@ -213,5 +233,108 @@ namespace AIStudyHub.ViewModels
 
         [RelayCommand]
         private void ToggleChat() => IsChatVisible = !IsChatVisible;
+
+        [RelayCommand]
+        private void ToggleFocusTimerPopup()
+        {
+            IsFocusTimerPopupOpen = !IsFocusTimerPopupOpen;
+        }
+
+        [RelayCommand]
+        private void StartFocusTimer(string minutesStr)
+        {
+            if (int.TryParse(minutesStr, out int minutes))
+            {
+                StartTimer(TimeSpan.FromMinutes(minutes));
+            }
+        }
+
+        [RelayCommand]
+        private void StartCustomFocusTimer()
+        {
+            int hrs = CustomTimerHours;
+            int mins = CustomTimerMinutes;
+            
+            // Fix negative inputs
+            if (hrs < 0) hrs = 0;
+            if (mins < 0) mins = 0;
+            
+            // Bound minutes
+            if (mins > 59) mins = 59;
+            
+            // Bound max to 10h
+            if (hrs > 10) 
+            {
+                hrs = 10;
+                mins = 0;
+            }
+            if (hrs == 10 && mins > 0)
+            {
+                mins = 0;
+            }
+            
+            // Bound min to 1m
+            if (hrs == 0 && mins == 0)
+            {
+                mins = 1;
+            }
+            
+            // Cập nhật lại UI
+            CustomTimerHours = hrs;
+            CustomTimerMinutes = mins;
+
+            StartTimer(new TimeSpan(hrs, mins, 0));
+        }
+
+        [RelayCommand]
+        private void StopFocusTimer()
+        {
+            if (_focusTimer != null)
+            {
+                _focusTimer.Stop();
+                IsTimerRunning = false;
+                TimerDisplay = "Hẹn giờ tập trung";
+            }
+        }
+
+        private void StartTimer(TimeSpan duration)
+        {
+            if (duration.TotalSeconds <= 0) return;
+
+            _timerRemaining = duration;
+            IsTimerRunning = true;
+            IsFocusTimerPopupOpen = false;
+            UpdateTimerDisplay();
+
+            if (_focusTimer == null)
+            {
+                _focusTimer = new DispatcherTimer();
+                _focusTimer.Interval = TimeSpan.FromSeconds(1);
+                _focusTimer.Tick += (s, e) =>
+                {
+                    if (_timerRemaining.TotalSeconds > 0)
+                    {
+                        _timerRemaining = _timerRemaining.Subtract(TimeSpan.FromSeconds(1));
+                        UpdateTimerDisplay();
+                    }
+                    else
+                    {
+                        StopFocusTimer();
+                        System.Media.SystemSounds.Exclamation.Play();
+                        System.Windows.MessageBox.Show("Làm tốt lắm! Hãy nghỉ ngơi một chút trước khi tiếp tục nhé.", "Hết giờ!", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+                    }
+                };
+            }
+            
+            _focusTimer.Start();
+        }
+
+        private void UpdateTimerDisplay()
+        {
+            if (_timerRemaining.Hours > 0)
+                TimerDisplay = $"{_timerRemaining.Hours:D2}:{_timerRemaining.Minutes:D2}:{_timerRemaining.Seconds:D2}";
+            else
+                TimerDisplay = $"{_timerRemaining.Minutes:D2}:{_timerRemaining.Seconds:D2}";
+        }
     }
 }

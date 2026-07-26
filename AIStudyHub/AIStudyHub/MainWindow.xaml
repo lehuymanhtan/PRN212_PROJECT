@@ -53,12 +53,50 @@
                                  Text="Type your study question..." TextWrapping="Wrap" Height="50"/>
                     </Border>
                     <TextBlock Text="Study Sessions" Style="{StaticResource CaptionStyle}" Margin="8,0,0,4" FontWeight="SemiBold"/>
-                    <Button Style="{StaticResource NavButtonStyle}" Margin="0,2">
+                    <Button Style="{StaticResource NavButtonStyle}" Margin="0,2" Command="{Binding ToggleFocusTimerPopupCommand}" x:Name="FocusTimerButton">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="⏱" FontSize="14"/>
-                            <TextBlock Text="Start Focus Timer" Margin="8,0,0,0" FontSize="13"/>
+                            <TextBlock Text="{Binding TimerDisplay}" Margin="8,0,0,0" FontSize="13"/>
                         </StackPanel>
                     </Button>
+                    <Popup IsOpen="{Binding IsFocusTimerPopupOpen, Mode=TwoWay}" PlacementTarget="{Binding ElementName=FocusTimerButton}" Placement="Right" StaysOpen="False" AllowsTransparency="True" PopupAnimation="Fade" HorizontalOffset="5">
+                        <Border Background="{StaticResource AppBgBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Width="200">
+                            <Border.Effect>
+                                <DropShadowEffect Color="#9CA3AF" BlurRadius="12" ShadowDepth="2" Opacity="0.12"/>
+                            </Border.Effect>
+                            <StackPanel>
+                                <TextBlock Text="Hẹn giờ tập trung" FontWeight="Bold" Margin="0,0,0,10"/>
+                                
+                                <Button Content="15 Phút" Command="{Binding StartFocusTimerCommand}" CommandParameter="15" Style="{StaticResource OutlineButtonStyle}" Margin="0,0,0,6"/>
+                                <Button Content="25 Phút (Pomodoro)" Command="{Binding StartFocusTimerCommand}" CommandParameter="25" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,0,6"/>
+                                <Button Content="30 Phút" Command="{Binding StartFocusTimerCommand}" CommandParameter="30" Style="{StaticResource OutlineButtonStyle}" Margin="0,0,0,6"/>
+                                <Button Content="45 Phút" Command="{Binding StartFocusTimerCommand}" CommandParameter="45" Style="{StaticResource OutlineButtonStyle}" Margin="0,0,0,6"/>
+                                <Button Content="60 Phút" Command="{Binding StartFocusTimerCommand}" CommandParameter="60" Style="{StaticResource OutlineButtonStyle}" Margin="0,0,0,10"/>
+                                
+                                <TextBlock Text="Tùy chỉnh" FontWeight="SemiBold" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Giờ" FontSize="10" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        <TextBox Text="{Binding CustomTimerHours}" Padding="4" TextAlignment="Center"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" Text=":" VerticalAlignment="Center" Margin="4,10,4,0" FontWeight="Bold"/>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Phút" FontSize="10" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        <TextBox Text="{Binding CustomTimerMinutes}" Padding="4" TextAlignment="Center"/>
+                                    </StackPanel>
+                                </Grid>
+                                
+                                <Button Content="Bắt đầu" Command="{Binding StartCustomFocusTimerCommand}" Style="{StaticResource OutlineButtonStyle}" Margin="0,0,0,6"/>
+                                <Border Height="1" Background="{StaticResource BorderBrush}" Margin="0,4,0,10" Visibility="{Binding IsTimerRunning, Converter={StaticResource BoolToVis}}"/>
+                                <Button Content="Dừng hẹn giờ" Command="{Binding StopFocusTimerCommand}" Style="{StaticResource DangerButtonStyle}" Visibility="{Binding IsTimerRunning, Converter={StaticResource BoolToVis}}"/>
+                            </StackPanel>
+                        </Border>
+                    </Popup>
                 </StackPanel>
 
                 <!-- Nav Items -->
@@ -396,7 +434,7 @@
             </DockPanel>
 
             <!-- New Chat Warning Popup -->
-            <Grid Visibility="{Binding IsNewChatWarningVisible, Converter={StaticResource BoolToVis}}" Background="#80000000">
+            <Grid Grid.ColumnSpan="3" Visibility="{Binding IsNewChatWarningVisible, Converter={StaticResource BoolToVis}}" Background="#80000000">
                 <Border Background="{StaticResource CardBgBrush}" CornerRadius="12" Padding="20" HorizontalAlignment="Center" VerticalAlignment="Center" Width="280">
                     <StackPanel>
                         <TextBlock Text="Xóa lịch sử chat" FontWeight="Bold" FontSize="16" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,12"/>
@@ -417,6 +455,7 @@
                     </StackPanel>
                 </Border>
             </Grid>
+            <!-- Timer Finished Popup removed -->
             </Grid>
         </Border>
     </Grid>
