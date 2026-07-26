@@ -72,28 +72,74 @@ namespace AIStudyHub.Services
             if (isSummarizeRequest && documentId == Guid.Empty)
                 return "Vui lòng mở một tài liệu trước khi yêu cầu tóm tắt.";
 
-            // ── NORMAL RAG PATH ───────────────────────────────────────────────────
-            var keywords = question
-                .Split(new[] { ' ', ',', '.', '?' }, StringSplitOptions.RemoveEmptyEntries)
-                .Where(k => k.Length > 2)
-                .ToList();
+            // ── HYBRID RAG PATH (Vector + Keyword) ────────────────────────────────
+            var queryEmbedding = await GenerateEmbeddingAsync(question, "RETRIEVAL_QUERY");
+            bool hasValidQueryVector = queryEmbedding.Length > 0;
 
-            string contextText = string.Empty;
-            var chunksQuery = db.DocumentChunks.Where(c => c.DocumentId == documentId);
+            var allChunks = db.DocumentChunks.Where(c => c.DocumentId == documentId).ToList();
 
-            if (keywords.Any())
+            if (!allChunks.Any())
             {
-                var matchingChunks = chunksQuery.AsEnumerable()
-                    .Where(c => keywords.Any(k => c.Content.Contains(k, StringComparison.OrdinalIgnoreCase)))
-                    .Take(5)
-                    .Select(c => c.Content);
-                contextText = string.Join("\n\n", matchingChunks);
+                return "Tài liệu này không có dữ liệu văn bản để tìm kiếm.";
             }
 
+            // 1. Vector Search Ranking
+            var vectorScores = new Dictionary<Guid, double>();
+            foreach (var chunk in allChunks)
+            {
+                float[] chunkVector = Array.Empty<float>();
+                if (!string.IsNullOrEmpty(chunk.EmbeddingData))
+                {
+                    try { chunkVector = JsonSerializer.Deserialize<float[]>(chunk.EmbeddingData) ?? Array.Empty<float>(); } catch { }
+                }
+                double sim = hasValidQueryVector ? CalculateCosineSimilarity(queryEmbedding, chunkVector) : 0;
+                vectorScores[chunk.Id] = sim;
+            }
+            var vectorRanked = vectorScores.OrderByDescending(x => x.Value).Select(x => x.Key).ToList();
+
+            // 2. Keyword Search Ranking
+            var keywords = question.Split(new[] { ' ', ',', '.', '?' }, StringSplitOptions.RemoveEmptyEntries)
+                                   .Where(k => k.Length > 2).Select(k => k.ToLower()).ToList();
+            var keywordScores = new Dictionary<Guid, int>();
+            foreach (var chunk in allChunks)
+            {
+                int score = 0;
+                var lowerContent = chunk.Content.ToLower();
+                foreach (var kw in keywords)
+                {
+                    if (lowerContent.Contains(kw)) score++;
+                }
+                keywordScores[chunk.Id] = score;
+            }
+            var keywordRanked = keywordScores.OrderByDescending(x => x.Value).Select(x => x.Key).ToList();
+
+            // 3. RRF (Reciprocal Rank Fusion)
+            var rrfScores = new Dictionary<Guid, double>();
+            int rrfK = 60;
+            foreach (var chunk in allChunks)
+            {
+                int vRank = vectorRanked.IndexOf(chunk.Id) + 1;
+                int kRank = keywordRanked.IndexOf(chunk.Id) + 1;
+
+                double rrf = 0;
+                if (vectorScores[chunk.Id] > 0) rrf += 1.0 / (rrfK + vRank);
+                if (keywordScores[chunk.Id] > 0) rrf += 1.0 / (rrfK + kRank);
+                
+                // Fallback nếu không có vector và keyword cũng không khớp
+                if (rrf == 0 && !hasValidQueryVector && keywords.Count == 0) rrf = 1.0 / (rrfK + vRank); 
+
+                rrfScores[chunk.Id] = rrf;
+            }
+
+            var topChunks = rrfScores.OrderByDescending(x => x.Value)
+                                     .Take(5)
+                                     .Select(kvp => allChunks.First(c => c.Id == kvp.Key).Content);
+
+            string contextText = string.Join("\n\n", topChunks);
             if (string.IsNullOrWhiteSpace(contextText))
             {
                 // Fallback: lấy 3 đoạn đầu
-                contextText = string.Join("\n\n", chunksQuery.Take(3).Select(c => c.Content));
+                contextText = string.Join("\n\n", allChunks.Take(3).Select(c => c.Content));
             }
 
             string ragSystemPrompt = $"Bạn là một gia sư AI thân thiện. Dưới đây là nội dung tài liệu trích xuất:\n{contextText}\n\nHãy trả lời câu hỏi của người dùng. Nếu câu hỏi liên quan tới tài liệu, hãy dựa vào tài liệu. Nếu câu hỏi là kiến thức chung, hãy dùng kiến thức của bạn.";
@@ -266,6 +312,89 @@ namespace AIStudyHub.Services
             {
                 return $"Lỗi kết nối: {ex.Message}";
             }
+        }
+
+        // ─── Embeddings & Math ───────────────────────────────────────────────────
+
+        public static async Task<float[]> GenerateEmbeddingAsync(string text, string taskType)
+        {
+            var res = await GenerateEmbeddingsBatchAsync(new List<string> { text }, taskType);
+            return res.FirstOrDefault() ?? Array.Empty<float>();
+        }
+
+        public static async Task<List<float[]>> GenerateEmbeddingsBatchAsync(List<string> texts, string taskType)
+        {
+            using var db = new AppDbContext();
+            var apiKey = db.AppSettings.Find("ApiKey")?.Value;
+            var endpoint = db.AppSettings.Find("ApiEndpoint")?.Value ?? "https://generativelanguage.googleapis.com/v1beta/models/";
+            var embeddingModel = db.AppSettings.Find("EmbeddingModel")?.Value ?? "gemini-embedding-001";
+
+            if (string.IsNullOrWhiteSpace(apiKey) || !texts.Any())
+                return new List<float[]>();
+
+            var results = new List<float[]>();
+            int batchSize = 100;
+            
+            using var httpClient = new HttpClient { Timeout = TimeSpan.FromMinutes(2) };
+
+            for (int i = 0; i < texts.Count; i += batchSize)
+            {
+                var batchTexts = texts.Skip(i).Take(batchSize).ToList();
+
+                var requests = batchTexts.Select(t => new Dictionary<string, object>
+                {
+                    ["model"] = $"models/{embeddingModel}",
+                    ["content"] = new { parts = new[] { new { text = t } } },
+                    ["task_type"] = taskType
+                }).ToList();
+
+                var requestBody = new { requests };
+                var jsonContent = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
+                string requestUrl = $"{endpoint.TrimEnd('/')}/{embeddingModel}:batchEmbedContents?key={apiKey}";
+
+                try
+                {
+                    var response = await httpClient.PostAsync(requestUrl, jsonContent);
+                    var responseString = await response.Content.ReadAsStringAsync();
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        using var jsonDoc = JsonDocument.Parse(responseString);
+                        var embeddings = jsonDoc.RootElement.GetProperty("embeddings").EnumerateArray();
+                        foreach (var emb in embeddings)
+                        {
+                            var values = emb.GetProperty("values").EnumerateArray().Select(v => v.GetSingle()).ToArray();
+                            results.Add(values);
+                        }
+                    }
+                    else
+                    {
+                        results.AddRange(batchTexts.Select(_ => Array.Empty<float>()));
+                    }
+                }
+                catch
+                {
+                    results.AddRange(batchTexts.Select(_ => Array.Empty<float>()));
+                }
+            }
+            return results;
+        }
+
+        private static double CalculateCosineSimilarity(float[] vectorA, float[] vectorB)
+        {
+            if (vectorA == null || vectorB == null || vectorA.Length != vectorB.Length || vectorA.Length == 0)
+                return 0;
+
+            double dotProduct = 0, normA = 0, normB = 0;
+            for (int i = 0; i < vectorA.Length; i++)
+            {
+                dotProduct += vectorA[i] * vectorB[i];
+                normA += Math.Pow(vectorA[i], 2);
+                normB += Math.Pow(vectorB[i], 2);
+            }
+
+            if (normA == 0 || normB == 0) return 0;
+            return dotProduct / (Math.Sqrt(normA) * Math.Sqrt(normB));
         }
     }
 }

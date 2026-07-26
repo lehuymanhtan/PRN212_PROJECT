@@ -76,6 +76,9 @@ namespace AIStudyHub.ViewModels
         [ObservableProperty]
         private string _statusMessage = string.Empty;
 
+        [ObservableProperty]
+        private bool _isUploading;
+
         public string ZoomPercentageText => $"{(int)(ZoomFactor * 100)}%";
 
         public DocumentViewModel()
@@ -168,6 +171,7 @@ namespace AIStudyHub.ViewModels
 
                 try
                 {
+                    IsUploading = true;
                     StatusMessage = $"Đang tải lên {dialog.FileNames.Length} tài liệu...";
                     foreach (var fileName in dialog.FileNames)
                     {
@@ -190,6 +194,10 @@ namespace AIStudyHub.ViewModels
                 {
                     MessageBox.Show($"Lỗi tải file: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
                     StatusMessage = "Tải file thất bại.";
+                }
+                finally
+                {
+                    IsUploading = false;
                 }
             }
         }

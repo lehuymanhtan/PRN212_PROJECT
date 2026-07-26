@@ -5,21 +5,61 @@ namespace AIStudyHub.Views
 {
     public partial class DocumentView : UserControl
     {
+        private bool _isWebViewInitialized = false;
+
         public DocumentView()
         {
             InitializeComponent();
             this.Loaded += DocumentView_Loaded;
+            this.DataContextChanged += DocumentView_DataContextChanged;
+        }
+
+        private void DocumentView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (e.OldValue is ViewModels.DocumentViewModel oldVm)
+            {
+                oldVm.PropertyChanged -= Vm_PropertyChanged;
+            }
+            if (e.NewValue is ViewModels.DocumentViewModel newVm)
+            {
+                newVm.PropertyChanged += Vm_PropertyChanged;
+                if (_isWebViewInitialized && newVm.CurrentViewerUrl != null && DocumentWebView.CoreWebView2 != null)
+                {
+                    DocumentWebView.CoreWebView2.Navigate(newVm.CurrentViewerUrl.ToString());
+                }
+            }
+        }
+
+        private void Vm_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ViewModels.DocumentViewModel.CurrentViewerUrl))
+            {
+                if (DataContext is ViewModels.DocumentViewModel vm && vm.CurrentViewerUrl != null)
+                {
+                    if (_isWebViewInitialized && DocumentWebView.CoreWebView2 != null)
+                    {
+                        DocumentWebView.CoreWebView2.Navigate(vm.CurrentViewerUrl.ToString());
+                    }
+                }
+            }
         }
 
         private async void DocumentView_Loaded(object sender, RoutedEventArgs e)
         {
+            if (_isWebViewInitialized) return;
+
             // Initialize WebView2 to ensure PDF reader works reliably
             try
             {
                 var env = await Microsoft.Web.WebView2.Core.CoreWebView2Environment.CreateAsync(null, System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData), "AIStudyHub", "WebView2"));
                 await DocumentWebView.EnsureCoreWebView2Async(env);
                 
+                _isWebViewInitialized = true;
+
+                DocumentWebView.CoreWebView2.ContextMenuRequested -= CoreWebView2_ContextMenuRequested;
                 DocumentWebView.CoreWebView2.ContextMenuRequested += CoreWebView2_ContextMenuRequested;
+                
+                DocumentWebView.CoreWebView2.ContainsFullScreenElementChanged -= CoreWebView2_ContainsFullScreenElementChanged;
                 DocumentWebView.CoreWebView2.ContainsFullScreenElementChanged += CoreWebView2_ContainsFullScreenElementChanged;
 
                 if (DataContext is ViewModels.DocumentViewModel vm && vm.CurrentViewerUrl != null)

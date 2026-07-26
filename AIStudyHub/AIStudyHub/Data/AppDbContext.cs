@@ -30,7 +30,15 @@ namespace AIStudyHub.Data
                 );
             ");
 
-            db.EnsureFlashcardAndAnnotationTablesCreated();
+            var defaultModel = db.AppSettings.Find("AiModel");
+            if (defaultModel == null) db.AppSettings.Add(new AppSetting { Key = "AiModel", Value = "gemma-4-31b-it" });
+
+            var defaultEmbeddingModel = db.AppSettings.Find("EmbeddingModel");
+            if (defaultEmbeddingModel == null) db.AppSettings.Add(new AppSetting { Key = "EmbeddingModel", Value = "gemini-embedding-001" });
+
+            db.SaveChanges();
+
+            db.EnsureDocumentChunkTableMigrated();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -136,6 +144,20 @@ namespace AIStudyHub.Data
                     Type TEXT NOT NULL DEFAULT 'Highlight'
                 )
             ");
+        }
+
+        public void EnsureDocumentChunkTableMigrated()
+        {
+            try
+            {
+                // Thử thêm cột EmbeddingData vào bảng DOCUMENT_CHUNK. 
+                // Nếu cột đã tồn tại (DB mới tạo hoặc đã migrate), lệnh sẽ throw exception và bị catch (bỏ qua).
+                Database.ExecuteSqlRaw("ALTER TABLE DOCUMENT_CHUNK ADD COLUMN EmbeddingData TEXT");
+            }
+            catch
+            {
+                // Bỏ qua lỗi nếu cột đã tồn tại
+            }
         }
     }
 }
