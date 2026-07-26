@@ -11,6 +11,7 @@ namespace AIStudyHub.Data
         public DbSet<Document> Documents { get; set; }
         public DbSet<Flashcard> Flashcards { get; set; }
         public DbSet<Annotation> Annotations { get; set; }
+        public DbSet<Note> Notes { get; set; }
 
         public static void InitializeDatabase()
         {
@@ -39,6 +40,7 @@ namespace AIStudyHub.Data
             db.SaveChanges();
 
             db.EnsureDocumentChunkTableMigrated();
+            db.EnsureNotesTableCreated();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -56,6 +58,7 @@ namespace AIStudyHub.Data
             modelBuilder.Entity<Document>().ToTable("DOCUMENT");
             modelBuilder.Entity<Flashcard>().ToTable("FLASHCARD");
             modelBuilder.Entity<Annotation>().ToTable("ANNOTATION");
+            modelBuilder.Entity<Note>().ToTable("NOTE");
 
             // Ràng buộc khoá ngoại (Cascade Delete)
             modelBuilder.Entity<Subject>()
@@ -142,6 +145,22 @@ namespace AIStudyHub.Data
                     PosY REAL NOT NULL,
                     Content TEXT,
                     Type TEXT NOT NULL DEFAULT 'Highlight'
+                )
+            ");
+        }
+
+        public void EnsureNotesTableCreated()
+        {
+            Database.ExecuteSqlRaw(@"
+                CREATE TABLE IF NOT EXISTS NOTE (
+                    Id TEXT NOT NULL PRIMARY KEY,
+                    Title TEXT NOT NULL,
+                    Content TEXT,
+                    SubjectId TEXT,
+                    CreatedAt TEXT NOT NULL,
+                    UpdatedAt TEXT NOT NULL,
+                    CONSTRAINT FK_NOTE_SUBJECT FOREIGN KEY (SubjectId)
+                        REFERENCES SUBJECT(Id) ON DELETE SET NULL
                 )
             ");
         }
