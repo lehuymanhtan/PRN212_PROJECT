@@ -8,7 +8,12 @@
     <UseWPF>true</UseWPF>
     <AcceptNPOIOSMFLicense>true</AcceptNPOIOSMFLicense>
     <Version>1.0.0-dev</Version>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="icon.png" />
+  </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Themes\" />
