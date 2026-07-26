@@ -665,7 +665,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <Button Grid.Column="0" Content="Huỷ" Command="{Binding CloseFormCommand}"
+                        <Button Grid.Column="0" Content="Đóng" Command="{Binding CloseFormCommand}"
                                 Background="#F1F5F9" Foreground="#475569" FontSize="14"
                                 FontWeight="SemiBold" Padding="0,12" BorderThickness="1" BorderBrush="#CBD5E1">
                             <Button.Template>
