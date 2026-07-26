@@ -119,8 +119,26 @@ namespace AIStudyHub.Services
                 case "DOCX":
                 case "DOC":
                 {
-                    var converter = new Mammoth.DocumentConverter();
-                    return converter.ExtractRawText(filePath).Value;
+                    NetOffice.WordApi.Application? wordApp = null;
+                    NetOffice.WordApi.Document? wordDoc = null;
+                    try
+                    {
+                        wordApp = new NetOffice.WordApi.Application();
+                        wordApp.Visible = false;
+                        wordDoc = wordApp.Documents.Open(filePath);
+                        return wordDoc.Content.Text;
+                    }
+                    catch
+                    {
+                        return string.Empty;
+                    }
+                    finally
+                    {
+                        wordDoc?.Close(NetOffice.WordApi.Enums.WdSaveOptions.wdDoNotSaveChanges);
+                        wordDoc?.Dispose();
+                        wordApp?.Quit();
+                        wordApp?.Dispose();
+                    }
                 }
 
                 case "PPTX":

@@ -227,9 +227,47 @@ namespace AIStudyHub.ViewModels
                 catch { }
                 return;
             }
+            else if (fileTypeLower is "DOCX" or "DOC")
+            {
+                IsPdfDocument = true;
+                string cacheDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AIStudyHub", "Cache");
+                Directory.CreateDirectory(cacheDir);
+                displayPath = Path.Combine(cacheDir, $"{document.Id}.pdf");
+
+                if (!File.Exists(displayPath) || File.GetLastWriteTime(document.FilePath) > File.GetLastWriteTime(displayPath))
+                {
+                    StatusMessage = $"Đang đọc Word: {document.Title} (Đang chuyển sang PDF, vui lòng đợi...)";
+                    NetOffice.WordApi.Application? wordApp = null;
+                    NetOffice.WordApi.Document? wordDoc = null;
+                    try
+                    {
+                        wordApp = new NetOffice.WordApi.Application();
+                        wordApp.Visible = false;
+                        wordDoc = wordApp.Documents.Open(document.FilePath);
+                        wordDoc.SaveAs2(displayPath, NetOffice.WordApi.Enums.WdSaveFormat.wdFormatPDF);
+                        StatusMessage = $"Đang đọc Word (PDF Mode): {document.Title}";
+                    }
+                    catch (Exception ex)
+                    {
+                        StatusMessage = $"Lỗi xử lý Word: {ex.Message}";
+                        return;
+                    }
+                    finally
+                    {
+                        wordDoc?.Close(NetOffice.WordApi.Enums.WdSaveOptions.wdDoNotSaveChanges);
+                        wordDoc?.Dispose();
+                        wordApp?.Quit();
+                        wordApp?.Dispose();
+                    }
+                }
+                else
+                {
+                    StatusMessage = $"Đang đọc Word (PDF Mode): {document.Title}";
+                }
+            }
             else
             {
-                // DOCX, DOC, TXT, MD — hiển thị trong WebView dưới dạng HTML
+                // TXT, MD — hiển thị trong WebView dưới dạng HTML
                 IsPdfDocument = false;
 
                 string cacheDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AIStudyHub", "Cache");
@@ -238,7 +276,7 @@ namespace AIStudyHub.ViewModels
 
                 if (!File.Exists(displayPath) || File.GetLastWriteTime(document.FilePath) > File.GetLastWriteTime(displayPath))
                 {
-                    string htmlBody;
+                    string htmlBody = "";
                     if (fileTypeLower is "TXT" or "MD")
                     {
                         var raw = File.ReadAllText(document.FilePath);
@@ -248,17 +286,7 @@ namespace AIStudyHub.ViewModels
                     }
                     else
                     {
-                        try
-                        {
-                            var converter = new Mammoth.DocumentConverter();
-                            var result = converter.ConvertToHtml(document.FilePath);
-                            htmlBody = result.Value ?? string.Empty;
-                            StatusMessage = $"Đang đọc Word: {document.Title} (Đúng bố cục Word không giới hạn trang & Bôi đen copy chữ)";
-                        }
-                        catch
-                        {
-                            htmlBody = "<p>Không thể hiển thị tài liệu này.</p>";
-                        }
+                        htmlBody = "<p>Không hỗ trợ hiển thị định dạng này.</p>";
                     }
 
                     string styledHtml = $@"<!DOCTYPE html>
@@ -284,38 +312,12 @@ namespace AIStudyHub.ViewModels
     margin: 0 auto;
     min-height: 900px;
   }}
-  table {{
-    border-collapse: collapse;
-    width: 100%;
-    margin: 18px 0;
-  }}
-  table, th, td {{
-    border: 1px solid #CBD5E1;
-  }}
-  th, td {{
-    padding: 10px 14px;
-    text-align: left;
-  }}
-  th {{
-    background-color: #F8FAFC;
-    font-weight: 600;
-  }}
-  h1, h2, h3, h4 {{
-    color: #0F172A;
-    margin-top: 1.4em;
-    margin-bottom: 0.5em;
-  }}
-  p {{
-    margin: 0.85em 0;
-  }}
-  img {{
-    max-width: 100%;
-    height: auto;
-  }}
   pre {{
     font-family: 'Cascadia Code', 'Consolas', monospace;
     font-size: 14px;
     line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
   }}
 </style>
 </head>
