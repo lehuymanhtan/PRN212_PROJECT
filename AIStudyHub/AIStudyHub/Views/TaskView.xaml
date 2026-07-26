@@ -292,7 +292,7 @@
                                             <Style TargetType="ContentControl">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Status}" Value="Todo">
+                                                    <DataTrigger Binding="{Binding Status}" Value="Chưa làm">
                                                         <Setter Property="Visibility" Value="Visible"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
@@ -396,7 +396,7 @@
                                             <Style TargetType="ContentControl">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Status}" Value="InProgress">
+                                                    <DataTrigger Binding="{Binding Status}" Value="Đang làm">
                                                         <Setter Property="Visibility" Value="Visible"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
@@ -486,7 +486,7 @@
                                             <Style TargetType="ContentControl">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Status}" Value="Done">
+                                                    <DataTrigger Binding="{Binding Status}" Value="Hoàn thành">
                                                         <Setter Property="Visibility" Value="Visible"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
