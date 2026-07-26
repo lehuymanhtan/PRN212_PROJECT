@@ -45,9 +45,9 @@ namespace AIStudyHub.Models
     /// </summary>
     public static class DeadlineStatus
     {
-        public const string Todo = "Chưa làm";
-        public const string InProgress = "Đang làm";
-        public const string Done = "Hoàn thành";
+        public const string Todo = "Todo";
+        public const string InProgress = "InProgress";
+        public const string Done = "Done";
     }
 
     /// <summary>
@@ -55,8 +55,8 @@ namespace AIStudyHub.Models
     /// </summary>
     public static class DeadlineType
     {
-        public const string Assignment = "Bài tập";
-        public const string Exam = "Lịch thi";
-        public const string Review = "Ôn tập";
+        public const string Assignment = "Assignment";
+        public const string Exam = "Exam";
+        public const string Review = "Review";
     }
 }

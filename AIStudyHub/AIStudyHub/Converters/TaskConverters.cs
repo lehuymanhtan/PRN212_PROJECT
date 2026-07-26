@@ -183,4 +183,46 @@ namespace AIStudyHub.Converters
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
             => DependencyProperty.UnsetValue;
     }
+
+    /// <summary>
+    /// Chuyển đổi Status (tiếng Anh trong DB) thành chữ hiển thị tiếng Việt trên UI.
+    /// </summary>
+    public class StatusToDisplayNameConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value?.ToString() switch
+            {
+                DeadlineStatus.Todo => "Chưa làm",
+                DeadlineStatus.InProgress => "Đang làm",
+                DeadlineStatus.Done => "Hoàn thành",
+                "All" => "Tất cả",
+                _ => value?.ToString() ?? string.Empty
+            };
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => DependencyProperty.UnsetValue;
+    }
+
+    /// <summary>
+    /// Chuyển đổi Type (tiếng Anh trong DB) thành chữ hiển thị tiếng Việt trên UI.
+    /// </summary>
+    public class TypeToDisplayNameConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value?.ToString() switch
+            {
+                DeadlineType.Assignment => "Bài tập",
+                DeadlineType.Exam => "Lịch thi",
+                DeadlineType.Review => "Ôn tập",
+                "All" => "Tất cả",
+                _ => value?.ToString() ?? string.Empty
+            };
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => DependencyProperty.UnsetValue;
+    }
 }

@@ -21,6 +21,8 @@
         <conv:NullableDateToStringConverter x:Key="NullableDateToString"/>
         <conv:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
         <conv:IsOverdueConverter x:Key="IsOverdue"/>
+        <conv:StatusToDisplayNameConverter x:Key="StatusToDisplayName"/>
+        <conv:TypeToDisplayNameConverter x:Key="TypeToDisplayName"/>
     </UserControl.Resources>
 
     <Grid>
@@ -188,7 +190,13 @@
                                FontSize="13" Foreground="#475569"/>
                     <ComboBox ItemsSource="{Binding FilterStatusOptions}"
                               SelectedItem="{Binding FilterStatus}"
-                              Width="130" FontSize="13" VerticalContentAlignment="Center" Padding="8,4"/>
+                              Width="130" FontSize="13" VerticalContentAlignment="Center" Padding="8,4">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource StatusToDisplayName}}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
                 </StackPanel>
 
                 <!-- Lọc theo Loại -->
@@ -197,7 +205,13 @@
                                FontSize="13" Foreground="#475569"/>
                     <ComboBox ItemsSource="{Binding FilterTypeOptions}"
                               SelectedItem="{Binding FilterType}"
-                              Width="130" FontSize="13" VerticalContentAlignment="Center" Padding="8,4"/>
+                              Width="130" FontSize="13" VerticalContentAlignment="Center" Padding="8,4">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource TypeToDisplayName}}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
                 </StackPanel>
 
                 <!-- Toggle hiển thị Urgent -->
@@ -292,7 +306,7 @@
                                             <Style TargetType="ContentControl">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Status}" Value="Chưa làm">
+                                                    <DataTrigger Binding="{Binding Status}" Value="Todo">
                                                         <Setter Property="Visibility" Value="Visible"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
@@ -324,7 +338,7 @@
                                                             Background="{Binding Type, Converter={StaticResource TypeToTagColor}}">
                                                         <TextBlock FontSize="11" Foreground="White" FontWeight="SemiBold">
                                                             <Run Text="{Binding Type, Converter={StaticResource TypeToIcon}, Mode=OneWay}"/>
-                                                            <Run Text="{Binding Type, Mode=OneWay}"/>
+                                                            <Run Text="{Binding Type, Converter={StaticResource TypeToDisplayName}, Mode=OneWay}"/>
                                                         </TextBlock>
                                                     </Border>
                                                     <!-- Edit + Delete buttons -->
@@ -396,7 +410,7 @@
                                             <Style TargetType="ContentControl">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Status}" Value="Đang làm">
+                                                    <DataTrigger Binding="{Binding Status}" Value="InProgress">
                                                         <Setter Property="Visibility" Value="Visible"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
@@ -425,7 +439,7 @@
                                                             Background="{Binding Type, Converter={StaticResource TypeToTagColor}}">
                                                         <TextBlock FontSize="11" Foreground="White" FontWeight="SemiBold">
                                                             <Run Text="{Binding Type, Converter={StaticResource TypeToIcon}, Mode=OneWay}"/>
-                                                            <Run Text="{Binding Type, Mode=OneWay}"/>
+                                                            <Run Text="{Binding Type, Converter={StaticResource TypeToDisplayName}, Mode=OneWay}"/>
                                                         </TextBlock>
                                                     </Border>
                                                     <StackPanel Grid.Column="2" Orientation="Horizontal">
@@ -486,7 +500,7 @@
                                             <Style TargetType="ContentControl">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Status}" Value="Hoàn thành">
+                                                    <DataTrigger Binding="{Binding Status}" Value="Done">
                                                         <Setter Property="Visibility" Value="Visible"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
@@ -514,7 +528,7 @@
                                                             Background="{Binding Type, Converter={StaticResource TypeToTagColor}}">
                                                         <TextBlock FontSize="11" Foreground="White" FontWeight="SemiBold">
                                                             <Run Text="{Binding Type, Converter={StaticResource TypeToIcon}, Mode=OneWay}"/>
-                                                            <Run Text="{Binding Type, Mode=OneWay}"/>
+                                                            <Run Text="{Binding Type, Converter={StaticResource TypeToDisplayName}, Mode=OneWay}"/>
                                                         </TextBlock>
                                                     </Border>
                                                     <StackPanel Grid.Column="2" Orientation="Horizontal">
@@ -622,7 +636,13 @@
                                        Foreground="#374151" Margin="0,0,0,6"/>
                             <ComboBox ItemsSource="{Binding TypeOptions}"
                                       SelectedItem="{Binding FormType}"
-                                      Padding="8,8" FontSize="13"/>
+                                      Padding="8,8" FontSize="13">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Converter={StaticResource TypeToDisplayName}}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                         </StackPanel>
                     </Grid>
 
@@ -646,7 +666,13 @@
                                        Foreground="#374151" Margin="0,0,0,6"/>
                             <ComboBox ItemsSource="{Binding StatusOptions}"
                                       SelectedItem="{Binding FormStatus}"
-                                      Padding="8,8" FontSize="13"/>
+                                      Padding="8,8" FontSize="13">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Converter={StaticResource StatusToDisplayName}}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                         </StackPanel>
                     </Grid>
 

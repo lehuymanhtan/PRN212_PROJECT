@@ -83,10 +83,10 @@ namespace AIStudyHub.ViewModels
         // =====================================================================
 
         [ObservableProperty]
-        private string _filterStatus = "Tất cả";
+        private string _filterStatus = "All";
 
         [ObservableProperty]
-        private string _filterType = "Tất cả";
+        private string _filterType = "All";
 
         [ObservableProperty]
         private string _searchKeyword = string.Empty;
@@ -129,12 +129,12 @@ namespace AIStudyHub.ViewModels
 
         public ObservableCollection<string> FilterStatusOptions { get; } = new()
         {
-            "Tất cả", DeadlineStatus.Todo, DeadlineStatus.InProgress, DeadlineStatus.Done
+            "All", DeadlineStatus.Todo, DeadlineStatus.InProgress, DeadlineStatus.Done
         };
 
         public ObservableCollection<string> FilterTypeOptions { get; } = new()
         {
-            "Tất cả", DeadlineType.Assignment, DeadlineType.Exam, DeadlineType.Review
+            "All", DeadlineType.Assignment, DeadlineType.Exam, DeadlineType.Review
         };
 
         // =====================================================================
@@ -219,11 +219,11 @@ namespace AIStudyHub.ViewModels
             if (item is not TaskItem task) return false;
 
             // Lọc theo Status
-            if (FilterStatus != "Tất cả" && task.Status != FilterStatus)
+            if (FilterStatus != "All" && task.Status != FilterStatus)
                 return false;
 
             // Lọc theo Type
-            if (FilterType != "Tất cả" && task.Type != FilterType)
+            if (FilterType != "All" && task.Type != FilterType)
                 return false;
 
             // Lọc theo từ khoá tìm kiếm (tìm trong Title và Description)
@@ -511,8 +511,8 @@ namespace AIStudyHub.ViewModels
         [RelayCommand]
         private void ClearFilters()
         {
-            FilterStatus = "Tất cả";
-            FilterType = "Tất cả";
+            FilterStatus = "All";
+            FilterType = "All";
             SearchKeyword = string.Empty;
             ShowUrgentOnly = false;
         }
