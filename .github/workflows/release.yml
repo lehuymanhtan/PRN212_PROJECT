@@ -1,0 +1,51 @@
+name: Publish Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: windows-latest
+
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+        
+    - name: Restore dependencies
+      run: dotnet restore AIStudyHub/AIStudyHub.slnx
+
+    - name: Extract Version
+      id: extract_version
+      run: |
+        $version = "${{ github.ref_name }}"
+        if ($version.StartsWith("v")) {
+          $version = $version.Substring(1)
+        }
+        echo "APP_VERSION=$version" >> $env:GITHUB_ENV
+      
+    - name: Publish app
+      run: dotnet publish AIStudyHub/AIStudyHub/AIStudyHub.csproj -c Release -r win-x64 --self-contained false -p:Version=${{ env.APP_VERSION }} -o ./publish
+      
+    - name: Zip release
+      run: Compress-Archive -Path ./publish/* -DestinationPath AIStudyHub-win-x64.zip
+
+    - name: Build Installer
+      run: iscc /DMyAppVersion=${{ env.APP_VERSION }} installer.iss
+
+    - name: Upload Release Assets
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          AIStudyHub-win-x64.zip
+          InstallerOutput/AIStudyHub-Installer-win-x64.exe
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
