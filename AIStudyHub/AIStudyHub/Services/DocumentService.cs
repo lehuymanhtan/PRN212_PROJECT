@@ -75,28 +75,36 @@ namespace AIStudyHub.Services
             dbContext.Documents.Add(document);
             await dbContext.SaveChangesAsync();
 
-            // RAG Chunking: Trích xuất và băm văn bản sau khi lưu
+            // RAG Chunking & Embedding: Trích xuất, băm văn bản và nhúng vector
             try
             {
                 var fullText = ExtractText(destinationFilePath, fileType);
                 if (!string.IsNullOrWhiteSpace(fullText))
                 {
-                    var chunks = SplitIntoChunks(fullText, 1000);
+                    var chunks = SplitIntoChunks(fullText, 1000, 200);
+                    var embeddings = await AIService.GenerateEmbeddingsBatchAsync(chunks, "RETRIEVAL_DOCUMENT");
+                    
                     for (int i = 0; i < chunks.Count; i++)
                     {
+                        var embeddingData = (i < embeddings.Count && embeddings[i].Length > 0) 
+                            ? System.Text.Json.JsonSerializer.Serialize(embeddings[i]) 
+                            : null;
+
                         dbContext.DocumentChunks.Add(new DocumentChunk
                         {
                             DocumentId = document.Id,
                             ChunkIndex = i,
-                            Content    = chunks[i]
+                            Content    = chunks[i],
+                            EmbeddingData = embeddingData
                         });
                     }
                     await dbContext.SaveChangesAsync();
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Bỏ qua lỗi Chunking nếu có để không làm gián đoạn việc upload
+                // Bỏ qua lỗi Chunking/Embedding nếu có để không làm gián đoạn việc upload
+                System.Diagnostics.Debug.WriteLine($"Lỗi Chunking/Embedding: {ex.Message}");
             }
 
             return document;
@@ -230,11 +238,19 @@ namespace AIStudyHub.Services
             }
         }
 
-        private static List<string> SplitIntoChunks(string text, int chunkSize)
+        private static List<string> SplitIntoChunks(string text, int chunkSize, int overlap = 200)
         {
             var chunks = new List<string>();
-            for (int i = 0; i < text.Length; i += chunkSize)
-                chunks.Add(text.Substring(i, Math.Min(chunkSize, text.Length - i)));
+            if (string.IsNullOrEmpty(text)) return chunks;
+
+            int i = 0;
+            while (i < text.Length)
+            {
+                int len = Math.Min(chunkSize, text.Length - i);
+                chunks.Add(text.Substring(i, len));
+                if (i + len >= text.Length) break;
+                i += chunkSize - overlap;
+            }
             return chunks;
         }
 
