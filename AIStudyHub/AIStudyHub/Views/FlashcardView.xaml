@@ -7,158 +7,245 @@
              xmlns:local="clr-namespace:AIStudyHub.Views"
              xmlns:viewmodels="clr-namespace:AIStudyHub.ViewModels"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="600" d:DesignWidth="800">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
     </UserControl.Resources>
 
-    
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
-        <Grid Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,20">
-            <Button Content="← Back" Command="{Binding BackToDecksCommand}" HorizontalAlignment="Left" VerticalAlignment="Center" Background="Transparent" BorderThickness="0" Foreground="Indigo" FontSize="16" Cursor="Hand"/>
-            <TextBlock Text="Flashcards Review" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            <Button Content="Cần ôn 📋" Command="{Binding ToggleSidebarCommand}" HorizontalAlignment="Right" VerticalAlignment="Center" Background="Transparent" BorderThickness="0" Foreground="Indigo" FontSize="16" Cursor="Hand" ToolTip="Bật/tắt danh sách ôn tập"/>
+        
+        <Grid Grid.Row="0" Margin="0,0,0,20">
+            <Button Content="← Back to Decks" Command="{Binding BackToDecksCommand}" HorizontalAlignment="Left" VerticalAlignment="Center" Background="Transparent" BorderThickness="0" Foreground="Indigo" FontSize="16" Cursor="Hand"/>
+            <TextBlock Text="Flashcards" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Grid>
         
-        <!-- Card Container -->
-        <Border Grid.Row="1" Background="White" BorderBrush="LightGray" BorderThickness="1" CornerRadius="10" Padding="20" Margin="50" HorizontalAlignment="Center" VerticalAlignment="Center" Width="400" Height="250" Cursor="Hand">
-            <Border.InputBindings>
-                <MouseBinding MouseAction="LeftClick" Command="{Binding FlipCardCommand}" />
-            </Border.InputBindings>
-            <Border.Effect>
-                <DropShadowEffect Color="Gray" BlurRadius="10" Opacity="0.5" />
-            </Border.Effect>
-            
-            <Grid>
-                <TextBlock Text="{Binding CurrentCard.FrontText}" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Visibility" Value="Visible"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsFlipped}" Value="True">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding CurrentCard}" Value="{x:Null}">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-                <TextBlock Text="{Binding CurrentCard.BackText}" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsFlipped}" Value="True">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-                <TextBlock Text="No more cards to review!" FontSize="20" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentCard}" Value="{x:Null}">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-            </Grid>
-        </Border>
-
-        <!-- Rating Actions (Visible only when flipped) -->
-        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-            <StackPanel.Style>
-                <Style TargetType="StackPanel">
+        <!-- List Mode (Visible when IsLearningMode = false) -->
+        <Grid Grid.Row="1">
+            <Grid.Style>
+                <Style TargetType="Grid">
                     <Setter Property="Visibility" Value="Collapsed"/>
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsFlipped}" Value="True">
+                        <DataTrigger Binding="{Binding IsLearningMode}" Value="False">
                             <Setter Property="Visibility" Value="Visible"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
-            </StackPanel.Style>
-            <Button Content="Blackout (0)" Command="{Binding RateCardCommand}" Margin="5" Width="90">
-                <Button.CommandParameter>
-                    <sys:Int32>0</sys:Int32>
-                </Button.CommandParameter>
+            </Grid.Style>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <Button Grid.Row="0" Content="▶ Start Learning" Command="{Binding StartLearningCommand}" Background="Indigo" Foreground="White" BorderThickness="0" FontSize="16" Cursor="Hand" HorizontalAlignment="Center" Margin="0,0,0,20" Padding="20,10">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                            <TextBlock Text="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="20,10"/>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
             </Button>
-            <Button Content="Wrong (1)" Command="{Binding RateCardCommand}" Margin="5" Width="90">
-                <Button.CommandParameter>
-                    <sys:Int32>1</sys:Int32>
-                </Button.CommandParameter>
-            </Button>
-            <Button Content="Hard (2)" Command="{Binding RateCardCommand}" Margin="5" Width="90">
-                <Button.CommandParameter>
-                    <sys:Int32>2</sys:Int32>
-                </Button.CommandParameter>
-            </Button>
-            <Button Content="Good (3)" Command="{Binding RateCardCommand}" Margin="5" Width="90">
-                <Button.CommandParameter>
-                    <sys:Int32>3</sys:Int32>
-                </Button.CommandParameter>
-            </Button>
-            <Button Content="Easy (4)" Command="{Binding RateCardCommand}" Margin="5" Width="90">
-                <Button.CommandParameter>
-                    <sys:Int32>4</sys:Int32>
-                </Button.CommandParameter>
-            </Button>
-            <Button Content="Perfect (5)" Command="{Binding RateCardCommand}" Margin="5" Width="90">
-                <Button.CommandParameter>
-                    <sys:Int32>5</sys:Int32>
-                </Button.CommandParameter>
-            </Button>
-        </StackPanel>
-        
-        <TextBlock Grid.Row="4" Text="{Binding FeedbackMessage}" Foreground="Green" HorizontalAlignment="Center" Margin="0,10,0,0" FontSize="16"/>
 
-        <!-- Forgotten Cards Sidebar -->
-        <Border Grid.Column="1" Grid.Row="1" Grid.RowSpan="4" Margin="20,0,0,0" Width="250"
-                Background="#FAFAFA" BorderBrush="LightGray" BorderThickness="1" CornerRadius="10" Padding="15"
-                Visibility="{Binding IsSidebarVisible, Converter={StaticResource BoolToVis}}">
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl ItemsSource="{Binding AllCards}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="White" BorderBrush="LightGray" BorderThickness="1" CornerRadius="8" Padding="15" Margin="0,0,0,10" MaxWidth="600" HorizontalAlignment="Center">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="LightGray" BlurRadius="5" Opacity="0.5" ShadowDepth="2"/>
+                                </Border.Effect>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Margin="0,0,15,0">
+                                        <TextBlock Text="Front:" FontWeight="Bold" FontSize="12" Foreground="Gray"/>
+                                        <TextBlock Text="{Binding FrontText}" TextWrapping="Wrap" FontSize="16" Margin="0,0,0,10"/>
+                                        <TextBlock Text="Back:" FontWeight="Bold" FontSize="12" Foreground="Gray"/>
+                                        <TextBlock Text="{Binding BackText}" TextWrapping="Wrap" FontSize="16"/>
+                                    </StackPanel>
+                                    <Button Grid.Column="1" Content="Delete" Command="{Binding DataContext.DeleteCardCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Background="#FF5252" Foreground="White" BorderThickness="0" Cursor="Hand" VerticalAlignment="Center">
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                                                    <TextBlock Text="{TemplateBinding Content}" Padding="15,8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Learning Mode (Visible when IsLearningMode = true) -->
+        <Grid Grid.Row="1">
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsLearningMode}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <Grid Grid.Row="0" Margin="0,0,0,10">
-                    <TextBlock Text="Cần ôn tập lại:" FontWeight="Bold" FontSize="16" Foreground="Indigo" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    <Button Content="✕" Command="{Binding ToggleSidebarCommand}" Background="Transparent" Foreground="Gray" BorderThickness="0" HorizontalAlignment="Right" FontSize="14" Width="24" Height="24" Cursor="Hand"/>
-                </Grid>
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                    <ItemsControl ItemsSource="{Binding ForgottenCards}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border Background="White" BorderBrush="LightGray" BorderThickness="1" CornerRadius="5" Padding="10" Margin="0,0,0,8">
-                                    <TextBlock Text="{Binding FrontText}" TextWrapping="Wrap" MaxHeight="40" TextTrimming="CharacterEllipsis"/>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-            </Grid>
-        </Border>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-        <!-- Floating Add Button -->
-        <Button Grid.Row="0" Grid.RowSpan="5" Grid.ColumnSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,20"
+                <Grid Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,10">
+                    <Button Content="← Stop Learning" Command="{Binding StopLearningCommand}" HorizontalAlignment="Left" VerticalAlignment="Center" Background="Transparent" BorderThickness="0" Foreground="Gray" FontSize="14" Cursor="Hand"/>
+                    <Button Content="Cần ôn 📋" Command="{Binding ToggleSidebarCommand}" HorizontalAlignment="Right" VerticalAlignment="Center" Background="Transparent" BorderThickness="0" Foreground="Indigo" FontSize="16" Cursor="Hand" ToolTip="Bật/tắt danh sách ôn tập"/>
+                </Grid>
+
+                <!-- Card Container -->
+                <Border Grid.Row="1" Background="White" BorderBrush="LightGray" BorderThickness="1" CornerRadius="10" Padding="20" Margin="50" HorizontalAlignment="Center" VerticalAlignment="Center" Width="400" Height="250" Cursor="Hand">
+                    <Border.InputBindings>
+                        <MouseBinding MouseAction="LeftClick" Command="{Binding FlipCardCommand}" />
+                    </Border.InputBindings>
+                    <Border.Effect>
+                        <DropShadowEffect Color="Gray" BlurRadius="10" Opacity="0.5" />
+                    </Border.Effect>
+                    
+                    <Grid>
+                        <TextBlock Text="{Binding CurrentCard.FrontText}" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsFlipped}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding CurrentCard}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Text="{Binding CurrentCard.BackText}" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsFlipped}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Text="No more cards to review!" FontSize="20" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentCard}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+                </Border>
+
+                <!-- Rating Actions (Visible only when flipped) -->
+                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsFlipped}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <Button Content="Blackout (0)" Command="{Binding RateCardCommand}" Margin="5" Width="90">
+                        <Button.CommandParameter>
+                            <sys:Int32>0</sys:Int32>
+                        </Button.CommandParameter>
+                    </Button>
+                    <Button Content="Wrong (1)" Command="{Binding RateCardCommand}" Margin="5" Width="90">
+                        <Button.CommandParameter>
+                            <sys:Int32>1</sys:Int32>
+                        </Button.CommandParameter>
+                    </Button>
+                    <Button Content="Hard (2)" Command="{Binding RateCardCommand}" Margin="5" Width="90">
+                        <Button.CommandParameter>
+                            <sys:Int32>2</sys:Int32>
+                        </Button.CommandParameter>
+                    </Button>
+                    <Button Content="Good (3)" Command="{Binding RateCardCommand}" Margin="5" Width="90">
+                        <Button.CommandParameter>
+                            <sys:Int32>3</sys:Int32>
+                        </Button.CommandParameter>
+                    </Button>
+                    <Button Content="Easy (4)" Command="{Binding RateCardCommand}" Margin="5" Width="90">
+                        <Button.CommandParameter>
+                            <sys:Int32>4</sys:Int32>
+                        </Button.CommandParameter>
+                    </Button>
+                    <Button Content="Perfect (5)" Command="{Binding RateCardCommand}" Margin="5" Width="90">
+                        <Button.CommandParameter>
+                            <sys:Int32>5</sys:Int32>
+                        </Button.CommandParameter>
+                    </Button>
+                </StackPanel>
+                
+                <TextBlock Grid.Row="3" Text="{Binding FeedbackMessage}" Foreground="Green" HorizontalAlignment="Center" Margin="0,10,0,0" FontSize="16"/>
+
+                <!-- Forgotten Cards Sidebar -->
+                <Border Grid.Column="1" Grid.Row="1" Grid.RowSpan="4" Margin="20,0,0,0" Width="250"
+                        Background="#FAFAFA" BorderBrush="LightGray" BorderThickness="1" CornerRadius="10" Padding="15"
+                        Visibility="{Binding IsSidebarVisible, Converter={StaticResource BoolToVis}}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0" Margin="0,0,0,10">
+                            <TextBlock Text="Cần ôn tập lại:" FontWeight="Bold" FontSize="16" Foreground="Indigo" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                            <Button Content="✕" Command="{Binding ToggleSidebarCommand}" Background="Transparent" Foreground="Gray" BorderThickness="0" HorizontalAlignment="Right" FontSize="14" Width="24" Height="24" Cursor="Hand"/>
+                        </Grid>
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding ForgottenCards}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="White" BorderBrush="LightGray" BorderThickness="1" CornerRadius="5" Padding="10" Margin="0,0,0,8">
+                                            <TextBlock Text="{Binding FrontText}" TextWrapping="Wrap" MaxHeight="40" TextTrimming="CharacterEllipsis"/>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+        
+        <!-- Floating Add Button (Always visible) -->
+        <Button Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,20"
                 Width="60" Height="60" Command="{Binding OpenAddCardModalCommand}" Background="Indigo" Foreground="White" BorderThickness="0"
                 ToolTip="Add new card">
             <Button.Template>
@@ -171,7 +258,7 @@
         </Button>
 
         <!-- Modal Overlay -->
-        <Grid Grid.Row="0" Grid.RowSpan="5" Grid.ColumnSpan="2" Background="#80000000" Visibility="{Binding IsAddCardModalOpen, Converter={StaticResource BoolToVis}}" Panel.ZIndex="100">
+        <Grid Grid.Row="0" Grid.RowSpan="2" Background="#80000000" Visibility="{Binding IsAddCardModalOpen, Converter={StaticResource BoolToVis}}" Panel.ZIndex="100">
             <Border Background="White" BorderBrush="LightGray" BorderThickness="1" CornerRadius="10" Padding="20" HorizontalAlignment="Center" VerticalAlignment="Center" Width="400">
                 <Border.Effect>
                     <DropShadowEffect Color="Gray" BlurRadius="5" Opacity="0.5" />
@@ -187,7 +274,7 @@
                     <TextBox Text="{Binding NewBackText, UpdateSourceTrigger=PropertyChanged}" Height="80" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,20" VerticalScrollBarVisibility="Auto"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button Content="Cancel" Command="{Binding CloseAddCardModalCommand}" Background="Transparent" Foreground="Gray" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand"/>
-                        <Button Content="Add Card" Command="{Binding AddFlashcardCommand}" Width="120" Height="35" Background="Indigo" Foreground="White" Cursor="Hand">
+                        <Button Content="Add Card" Command="{Binding AddFlashcardCommand}" Width="120" Height="35" Background="Indigo" Foreground="White" Cursor="Hand" BorderThickness="0">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border Background="{TemplateBinding Background}" CornerRadius="5">

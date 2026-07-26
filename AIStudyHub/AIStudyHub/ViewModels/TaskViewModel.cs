@@ -67,13 +67,13 @@ namespace AIStudyHub.ViewModels
         private string? _formDescription;
 
         [ObservableProperty]
-        private DateTime _formDueDate = DateTime.Now.AddDays(7);
+        private DateTime _formDueDate = DateTime.Now;
 
         [ObservableProperty]
-        private string _formStatus = DeadlineStatus.Todo;
+        private string _formStatus = StatusMapper.Todo;
 
         [ObservableProperty]
-        private string _formType = DeadlineType.Assignment;
+        private string _formType = TypeMapper.Assignment;
 
         [ObservableProperty]
         private Subject? _formSubject;
@@ -83,10 +83,10 @@ namespace AIStudyHub.ViewModels
         // =====================================================================
 
         [ObservableProperty]
-        private string _filterStatus = "All";
+        private string _filterStatus = StatusMapper.All;
 
         [ObservableProperty]
-        private string _filterType = "All";
+        private string _filterType = TypeMapper.All;
 
         [ObservableProperty]
         private string _searchKeyword = string.Empty;
@@ -119,22 +119,22 @@ namespace AIStudyHub.ViewModels
 
         public ObservableCollection<string> StatusOptions { get; } = new()
         {
-            DeadlineStatus.Todo, DeadlineStatus.InProgress, DeadlineStatus.Done
+            StatusMapper.Todo, StatusMapper.InProgress, StatusMapper.Done
         };
 
         public ObservableCollection<string> TypeOptions { get; } = new()
         {
-            DeadlineType.Assignment, DeadlineType.Exam, DeadlineType.Review
+            TypeMapper.Assignment, TypeMapper.Exam, TypeMapper.Review
         };
 
         public ObservableCollection<string> FilterStatusOptions { get; } = new()
         {
-            "All", DeadlineStatus.Todo, DeadlineStatus.InProgress, DeadlineStatus.Done
+            StatusMapper.All, StatusMapper.Todo, StatusMapper.InProgress, StatusMapper.Done
         };
 
         public ObservableCollection<string> FilterTypeOptions { get; } = new()
         {
-            "All", DeadlineType.Assignment, DeadlineType.Exam, DeadlineType.Review
+            TypeMapper.All, TypeMapper.Assignment, TypeMapper.Exam, TypeMapper.Review
         };
 
         // =====================================================================
@@ -176,8 +176,21 @@ namespace AIStudyHub.ViewModels
                 _dbContext.SaveChanges();
             }
 
-            // Tải danh sách môn học vào ComboBox
+            // Tải danh sách môn học vào ComboBox, tự tạo môn mặc định nếu chưa có môn nào
             var subjectList = _dbContext.Subjects.Where(s => s.UserId == user.Id).ToList();
+            if (!subjectList.Any())
+            {
+                var defaultSubject = new Subject
+                {
+                    UserId = user.Id,
+                    Name = "Môn học chung",
+                    CourseCode = "GENERAL",
+                    ColorHex = "#4F46E5"
+                };
+                _dbContext.Subjects.Add(defaultSubject);
+                _dbContext.SaveChanges();
+                subjectList.Add(defaultSubject);
+            }
             Subjects = new ObservableCollection<Subject>(subjectList);
 
             // Tải tất cả tasks (include Subject để hiện tên môn học)
@@ -219,11 +232,11 @@ namespace AIStudyHub.ViewModels
             if (item is not TaskItem task) return false;
 
             // Lọc theo Status
-            if (FilterStatus != "All" && task.Status != FilterStatus)
+            if (FilterStatus != StatusMapper.All && StatusMapper.ToVietnamese(task.Status) != FilterStatus)
                 return false;
 
             // Lọc theo Type
-            if (FilterType != "All" && task.Type != FilterType)
+            if (FilterType != TypeMapper.All && TypeMapper.ToVietnamese(task.Type) != FilterType)
                 return false;
 
             // Lọc theo từ khoá tìm kiếm (tìm trong Title và Description)
@@ -241,7 +254,8 @@ namespace AIStudyHub.ViewModels
                 if (!task.DueDate.HasValue) return false;
                 var daysLeft = (task.DueDate.Value - DateTime.Now).TotalDays;
                 // Bỏ qua task đã hoàn thành và task không gấp
-                if (task.Status == DeadlineStatus.Done || daysLeft < 0 || daysLeft > 3) return false;
+                var dbStatus = StatusMapper.ToDbValue(task.Status);
+                if (dbStatus == DeadlineStatus.Done || daysLeft < 0 || daysLeft > 3) return false;
             }
 
             return true;
@@ -254,23 +268,24 @@ namespace AIStudyHub.ViewModels
         private void UpdateStatistics()
         {
             var now = DateTime.Now;
-            CountTodo = AllTasks.Count(t => t.Status == DeadlineStatus.Todo);
-            CountInProgress = AllTasks.Count(t => t.Status == DeadlineStatus.InProgress);
-            CountDone = AllTasks.Count(t => t.Status == DeadlineStatus.Done);
+            CountTodo = AllTasks.Count(t => StatusMapper.ToDbValue(t.Status) == DeadlineStatus.Todo);
+            CountInProgress = AllTasks.Count(t => StatusMapper.ToDbValue(t.Status) == DeadlineStatus.InProgress);
+            CountDone = AllTasks.Count(t => StatusMapper.ToDbValue(t.Status) == DeadlineStatus.Done);
 
             // Đếm task đã quá hạn (DueDate < now và chưa Done)
             CountOverdue = AllTasks.Count(t =>
                 t.DueDate.HasValue &&
                 t.DueDate.Value < now &&
-                t.Status != DeadlineStatus.Done);
+                StatusMapper.ToDbValue(t.Status) != DeadlineStatus.Done);
 
             // Đếm task sắp đến hạn trong 3 ngày (nhưng chưa quá hạn và chưa Done)
             CountDueSoon = AllTasks.Count(t =>
                 t.DueDate.HasValue &&
                 t.DueDate.Value >= now &&
                 (t.DueDate.Value - now).TotalDays <= 3 &&
-                t.Status != DeadlineStatus.Done);
+                StatusMapper.ToDbValue(t.Status) != DeadlineStatus.Done);
         }
+
 
         // =====================================================================
         // PRIVATE METHODS - Countdown Timer Tick
@@ -351,9 +366,9 @@ namespace AIStudyHub.ViewModels
             // Reset form về trạng thái trống
             FormTitle = string.Empty;
             FormDescription = null;
-            FormDueDate = DateTime.Now.AddDays(7);
-            FormStatus = DeadlineStatus.Todo;
-            FormType = DeadlineType.Assignment;
+            FormDueDate = DateTime.Now;
+            FormStatus = StatusMapper.Todo;
+            FormType = TypeMapper.Assignment;
             FormSubject = Subjects.FirstOrDefault();
         }
 
@@ -369,9 +384,9 @@ namespace AIStudyHub.ViewModels
             // Điền dữ liệu hiện tại vào form
             FormTitle = task.Title;
             FormDescription = task.Description;
-            FormDueDate = task.DueDate ?? DateTime.Now.AddDays(7);
-            FormStatus = task.Status;
-            FormType = task.Type;
+            FormDueDate = task.DueDate ?? DateTime.Now;
+            FormStatus = StatusMapper.ToVietnamese(task.Status);
+            FormType = TypeMapper.ToVietnamese(task.Type);
             FormSubject = Subjects.FirstOrDefault(s => s.Id == task.SubjectId);
         }
 
@@ -384,6 +399,16 @@ namespace AIStudyHub.ViewModels
         // =====================================================================
         // RELAY COMMANDS - CRUD Operations
         // =====================================================================
+
+        private DateTime GetAdjustedDueDate(DateTime dueDate)
+        {
+            // Nếu thời gian là 00:00:00 (do chọn từ DatePicker), gán mặc định thành 23:59:59 để đúng hạn nộp cuối ngày
+            if (dueDate.TimeOfDay == TimeSpan.Zero)
+            {
+                return dueDate.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
+            }
+            return dueDate;
+        }
 
         [RelayCommand]
         private void SaveTask()
@@ -422,13 +447,15 @@ namespace AIStudyHub.ViewModels
                 FormSubject = firstSubject;
             }
 
+            var finalDueDate = GetAdjustedDueDate(FormDueDate);
+
             var newTask = new TaskItem
             {
                 Title = FormTitle.Trim(),
                 Description = FormDescription?.Trim(),
-                DueDate = FormDueDate,
-                Status = FormStatus,
-                Type = FormType,
+                DueDate = finalDueDate,
+                Status = StatusMapper.ToDbValue(FormStatus),
+                Type = TypeMapper.ToDbValue(FormType),
                 SubjectId = subjectId
             };
 
@@ -446,12 +473,14 @@ namespace AIStudyHub.ViewModels
         {
             if (SelectedTask == null) return;
 
+            var finalDueDate = GetAdjustedDueDate(FormDueDate);
+
             // Cập nhật trực tiếp trên object đang track bởi EF Core
             SelectedTask.Title = FormTitle.Trim();
             SelectedTask.Description = FormDescription?.Trim();
-            SelectedTask.DueDate = FormDueDate;
-            SelectedTask.Status = FormStatus;
-            SelectedTask.Type = FormType;
+            SelectedTask.DueDate = finalDueDate;
+            SelectedTask.Status = StatusMapper.ToDbValue(FormStatus);
+            SelectedTask.Type = TypeMapper.ToDbValue(FormType);
 
             if (FormSubject != null)
             {
@@ -480,21 +509,43 @@ namespace AIStudyHub.ViewModels
         }
 
         /// <summary>
-        /// Chuyển trạng thái Task nhanh từ Kanban board (kéo thả ảo qua button).
+        /// Chuyển trạng thái Task nhanh từ Kanban board.
+        /// Tham số parameter có thể truyền tên trạng thái mục tiêu ("InProgress", "Done", "Todo") 
+        /// hoặc null để tự chuyển xoay vòng.
         /// </summary>
         [RelayCommand]
-        private void MoveTaskStatus(TaskItem? task)
+        private void MoveTaskStatus(object? parameter)
         {
+            TaskItem? task = null;
+            string? targetStatus = null;
+
+            if (parameter is TaskItem t)
+            {
+                task = t;
+            }
+            else if (parameter is object[] args && args.Length >= 1 && args[0] is TaskItem t2)
+            {
+                task = t2;
+                if (args.Length >= 2 && args[1] is string s) targetStatus = s;
+            }
+
             if (task == null) return;
 
-            // Xoay vòng trạng thái: Todo -> InProgress -> Done -> Todo
-            task.Status = task.Status switch
+            var currentStatus = StatusMapper.ToDbValue(task.Status);
+            if (!string.IsNullOrEmpty(targetStatus))
             {
-                DeadlineStatus.Todo => DeadlineStatus.InProgress,
-                DeadlineStatus.InProgress => DeadlineStatus.Done,
-                DeadlineStatus.Done => DeadlineStatus.Todo,
-                _ => DeadlineStatus.Todo
-            };
+                task.Status = StatusMapper.ToDbValue(targetStatus);
+            }
+            else
+            {
+                task.Status = currentStatus switch
+                {
+                    DeadlineStatus.Todo => DeadlineStatus.InProgress,
+                    DeadlineStatus.InProgress => DeadlineStatus.Done,
+                    DeadlineStatus.Done => DeadlineStatus.Todo,
+                    _ => DeadlineStatus.Todo
+                };
+            }
 
             _dbContext.Tasks.Update(task);
             _dbContext.SaveChanges();
@@ -511,11 +562,12 @@ namespace AIStudyHub.ViewModels
         [RelayCommand]
         private void ClearFilters()
         {
-            FilterStatus = "All";
-            FilterType = "All";
+            FilterStatus = StatusMapper.All;
+            FilterType = TypeMapper.All;
             SearchKeyword = string.Empty;
             ShowUrgentOnly = false;
         }
+
 
         [RelayCommand]
         private void ShowUrgentFilter()
