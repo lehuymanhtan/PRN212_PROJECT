@@ -29,7 +29,7 @@
         <Grid Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,20">
             <Button Content="← Back" Command="{Binding BackToDecksCommand}" HorizontalAlignment="Left" VerticalAlignment="Center" Background="Transparent" BorderThickness="0" Foreground="Indigo" FontSize="16" Cursor="Hand"/>
             <TextBlock Text="Flashcards Review" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            <Button Content="Queue 📋" Command="{Binding ToggleSidebarCommand}" HorizontalAlignment="Right" VerticalAlignment="Center" Background="Transparent" BorderThickness="0" Foreground="Indigo" FontSize="16" Cursor="Hand" ToolTip="Toggle review queue"/>
+            <Button Content="Cần ôn 📋" Command="{Binding ToggleSidebarCommand}" HorizontalAlignment="Right" VerticalAlignment="Center" Background="Transparent" BorderThickness="0" Foreground="Indigo" FontSize="16" Cursor="Hand" ToolTip="Bật/tắt danh sách ôn tập"/>
         </Grid>
         
         <!-- Card Container -->
@@ -140,7 +140,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0" Margin="0,0,0,10">
-                    <TextBlock Text="To Review Again:" FontWeight="Bold" FontSize="16" Foreground="Indigo" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <TextBlock Text="Cần ôn tập lại:" FontWeight="Bold" FontSize="16" Foreground="Indigo" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                     <Button Content="✕" Command="{Binding ToggleSidebarCommand}" Background="Transparent" Foreground="Gray" BorderThickness="0" HorizontalAlignment="Right" FontSize="14" Width="24" Height="24" Cursor="Hand"/>
                 </Grid>
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">

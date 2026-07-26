@@ -46,13 +46,13 @@
                 <!-- Bottom: Study Session quick note -->
                 <StackPanel DockPanel.Dock="Bottom">
                     <Separator Margin="0,0,0,12" Background="{StaticResource BorderBrush}"/>
-                    <TextBlock Text="Quick Notes" Style="{StaticResource CaptionStyle}" Margin="8,0,0,6" FontWeight="SemiBold"/>
+                    <TextBlock Text="Ghi chú nhanh" Style="{StaticResource CaptionStyle}" Margin="8,0,0,6" FontWeight="SemiBold"/>
                     <Border Background="{StaticResource AppBgBrush}" CornerRadius="8" Padding="8" Margin="0,0,0,8">
                         <TextBox BorderThickness="0" Background="Transparent" FontSize="12"
                                  Foreground="{StaticResource TextSecondaryBrush}"
-                                 Text="Type your study question..." TextWrapping="Wrap" Height="50"/>
+                                 Text="Viết ghi chú..." TextWrapping="Wrap" Height="50"/>
                     </Border>
-                    <TextBlock Text="Study Sessions" Style="{StaticResource CaptionStyle}" Margin="8,0,0,4" FontWeight="SemiBold"/>
+                    <TextBlock Text="Phiên học tập" Style="{StaticResource CaptionStyle}" Margin="8,0,0,4" FontWeight="SemiBold"/>
                     <Button Style="{StaticResource NavButtonStyle}" Margin="0,2" Command="{Binding ToggleFocusTimerPopupCommand}" x:Name="FocusTimerButton">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="⏱" FontSize="14"/>
@@ -115,7 +115,7 @@
                         </Button.Style>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="📅" FontSize="16"/>
-                            <TextBlock Text="Deadlines &amp; Exams" Margin="10,0,0,0"/>
+                            <TextBlock Text="Hạn chót &amp; Kỳ thi" Margin="10,0,0,0"/>
                         </StackPanel>
                     </Button>
                     <Button Margin="0,2" Command="{Binding NavigateToSubjectsCommand}">
@@ -132,7 +132,7 @@
                         </Button.Style>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="🎓" FontSize="14"/>
-                            <TextBlock Text="My Subjects" Margin="10,0,0,0"/>
+                            <TextBlock Text="Môn học của tôi" Margin="10,0,0,0"/>
                         </StackPanel>
                     </Button>
                     
@@ -150,7 +150,7 @@
                         </Button.Style>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="📄" FontSize="14"/>
-                            <TextBlock Text="Document" Margin="10,0,0,0"/>
+                            <TextBlock Text="Tài liệu" Margin="10,0,0,0"/>
                         </StackPanel>
                     </Button>
                     <Button Margin="0,2" Command="{Binding NavigateToFlashcardsCommand}">
@@ -167,7 +167,7 @@
                         </Button.Style>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="🧠" FontSize="14"/>
-                            <TextBlock Text="Flashcards &amp; Notes" Margin="10,0,0,0"/>
+                            <TextBlock Text="Flashcards &amp; Ghi chú" Margin="10,0,0,0"/>
                         </StackPanel>
                     </Button>
                     <Button Margin="0,2" Command="{Binding NavigateToSettingsCommand}">
@@ -184,7 +184,7 @@
                         </Button.Style>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="⚙️" FontSize="14"/>
-                            <TextBlock Text="Settings" Margin="10,0,0,0"/>
+                            <TextBlock Text="Cài đặt" Margin="10,0,0,0"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>

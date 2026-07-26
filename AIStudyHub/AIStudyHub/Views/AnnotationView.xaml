@@ -48,14 +48,14 @@
 
         <!-- Right sidebar for selecting annotation type -->
         <StackPanel Grid.Column="1" Margin="10">
-            <TextBlock Text="Annotations Tool" FontWeight="Bold" FontSize="18" Margin="0,0,0,10"/>
-            <RadioButton x:Name="HighlightRadio" Content="Highlight Tool" IsChecked="True" Margin="0,5"/>
-            <RadioButton x:Name="NoteRadio" Content="Sticky Note Tool" Margin="0,5"/>
+            <TextBlock Text="Công cụ chú thích" FontWeight="Bold" FontSize="18" Margin="0,0,0,10"/>
+            <RadioButton x:Name="HighlightRadio" Content="Công cụ tô sáng" IsChecked="True" Margin="0,5"/>
+            <RadioButton x:Name="NoteRadio" Content="Công cụ ghi chú" Margin="0,5"/>
             
-            <TextBlock Text="Content to add:" Margin="0,15,0,5"/>
+            <TextBlock Text="Nội dung cần thêm:" Margin="0,15,0,5"/>
             <TextBox x:Name="AnnotationContentText" Text="Sample note..." Height="60" TextWrapping="Wrap"/>
             
-            <TextBlock Text="Existing Annotations:" FontWeight="Bold" Margin="0,20,0,5"/>
+            <TextBlock Text="Các chú thích hiện có:" FontWeight="Bold" Margin="0,20,0,5"/>
             <ListBox ItemsSource="{Binding DocumentAnnotations}" Height="300">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
