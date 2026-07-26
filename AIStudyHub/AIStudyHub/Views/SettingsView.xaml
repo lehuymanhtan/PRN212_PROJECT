@@ -34,7 +34,7 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,4">
                     <TextBlock Text="Phiên bản: " Foreground="{StaticResource TextSecondaryBrush}"/>
-                    <TextBlock Text="1.0.0 (MVP)" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding AppVersion}" FontWeight="SemiBold"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,4">
                     <TextBlock Text="Nhóm phát triển: " Foreground="{StaticResource TextSecondaryBrush}"/>

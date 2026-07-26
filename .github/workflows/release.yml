@@ -7,6 +7,15 @@ on:
 jobs:
   build-app:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - rid: win-x64
+            arch: x64
+          - rid: win-x86
+            arch: x86
+          - rid: win-arm64
+            arch: arm64
     outputs:
       app_version: ${{ steps.extract_version.outputs.APP_VERSION }}
 
@@ -32,34 +41,37 @@ jobs:
         echo "APP_VERSION=$version" >> $env:GITHUB_OUTPUT
       
     - name: Publish app
-      run: dotnet publish AIStudyHub/AIStudyHub/AIStudyHub.csproj -c Release -r win-x64 --self-contained false -p:Version=${{ steps.extract_version.outputs.APP_VERSION }} -o ./publish
+      run: dotnet publish AIStudyHub/AIStudyHub/AIStudyHub.csproj -c Release -r ${{ matrix.rid }} --self-contained false -p:Version=${{ steps.extract_version.outputs.APP_VERSION }} -o ./publish/${{ matrix.rid }}
 
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: publish-output
-        path: ./publish
+        name: publish-output-${{ matrix.rid }}
+        path: ./publish/${{ matrix.rid }}
 
   publish-zip:
     needs: build-app
     runs-on: windows-latest
     permissions:
       contents: write
+    strategy:
+      matrix:
+        rid: [win-x64, win-x86, win-arm64]
 
     steps:
     - name: Download Build Artifact
       uses: actions/download-artifact@v4
       with:
-        name: publish-output
-        path: ./publish
+        name: publish-output-${{ matrix.rid }}
+        path: ./publish/${{ matrix.rid }}
         
     - name: Zip release
-      run: Compress-Archive -Path ./publish/* -DestinationPath AIStudyHub-win-x64.zip
+      run: Compress-Archive -Path ./publish/${{ matrix.rid }}/* -DestinationPath AIStudyHub-${{ matrix.rid }}.zip
 
     - name: Upload Release Asset
       uses: softprops/action-gh-release@v2
       with:
-        files: AIStudyHub-win-x64.zip
+        files: AIStudyHub-${{ matrix.rid }}.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -68,6 +80,15 @@ jobs:
     runs-on: windows-latest
     permissions:
       contents: write
+    strategy:
+      matrix:
+        include:
+          - rid: win-x64
+            arch: x64
+          - rid: win-x86
+            arch: x86
+          - rid: win-arm64
+            arch: arm64
 
     steps:
     - name: Checkout code
@@ -76,15 +97,15 @@ jobs:
     - name: Download Build Artifact
       uses: actions/download-artifact@v4
       with:
-        name: publish-output
-        path: ./publish
+        name: publish-output-${{ matrix.rid }}
+        path: ./publish/${{ matrix.rid }}
 
     - name: Build Installer
-      run: iscc /DMyAppVersion=${{ needs.build-app.outputs.app_version }} installer.iss
+      run: iscc /DMyAppVersion=${{ needs.build-app.outputs.app_version }} /DAppArch=${{ matrix.arch }} /DBuildRid=${{ matrix.rid }} installer.iss
 
     - name: Upload Release Asset
       uses: softprops/action-gh-release@v2
       with:
-        files: InstallerOutput/AIStudyHub-Installer-win-x64.exe
+        files: InstallerOutput/AIStudyHub-Installer-${{ matrix.rid }}.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
