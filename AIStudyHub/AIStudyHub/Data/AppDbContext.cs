@@ -69,6 +69,19 @@ namespace AIStudyHub.Data
                 .HasForeignKey(d => d.SubjectId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<ChatMessage>()
+                .HasOne(c => c.Document)
+                .WithMany()
+                .HasForeignKey(c => c.DocumentId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<DocumentChunk>()
+                .HasOne(c => c.Document)
+                .WithMany()
+                .HasForeignKey(c => c.DocumentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             base.OnModelCreating(modelBuilder);
         }
 

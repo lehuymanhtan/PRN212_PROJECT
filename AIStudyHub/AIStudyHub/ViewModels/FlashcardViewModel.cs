@@ -5,21 +5,39 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using AIStudyHub.Models;
 using AIStudyHub.Services;
+using AIStudyHub.Data;
+using CommunityToolkit.Mvvm.Messaging;
+using AIStudyHub.Messages;
 
 namespace AIStudyHub.ViewModels
 {
     public partial class FlashcardViewModel : ObservableObject
     {
+        private readonly AppDbContext _dbContext;
         private readonly SpacedRepetitionService _spacedRepetitionService;
+        private readonly string _deckId;
 
-        public FlashcardViewModel()
+        public FlashcardViewModel(string deckId)
         {
+            _dbContext = new AppDbContext();
+            _dbContext.EnsureFlashcardAndAnnotationTablesCreated();
+            
+            _deckId = deckId;
             _spacedRepetitionService = new SpacedRepetitionService();
             DueFlashcards = new ObservableCollection<Flashcard>();
+            ForgottenCards = new ObservableCollection<Flashcard>();
+            
+            LoadDueCardsForDeck(_deckId);
         }
 
         [ObservableProperty]
         private ObservableCollection<Flashcard> _dueFlashcards;
+
+        [ObservableProperty]
+        private ObservableCollection<Flashcard> _forgottenCards;
+
+        [ObservableProperty]
+        private bool _isSidebarVisible;
 
         [ObservableProperty]
         private Flashcard? _currentCard;
@@ -30,28 +48,47 @@ namespace AIStudyHub.ViewModels
         [ObservableProperty]
         private string _feedbackMessage = string.Empty;
 
-        // Dummy method to simulate loading from database
+        [ObservableProperty]
+        private string _newFrontText = string.Empty;
+
+        [ObservableProperty]
+        private string _newBackText = string.Empty;
+
+        [ObservableProperty]
+        private bool _isAddCardModalOpen;
+
+        [RelayCommand]
+        private void OpenAddCardModal()
+        {
+            IsAddCardModalOpen = true;
+            NewFrontText = string.Empty;
+            NewBackText = string.Empty;
+        }
+
+        [RelayCommand]
+        private void CloseAddCardModal()
+        {
+            IsAddCardModalOpen = false;
+        }
+
+        [RelayCommand]
+        private void ToggleSidebar()
+        {
+            IsSidebarVisible = !IsSidebarVisible;
+        }
+
         public void LoadDueCardsForDeck(string deckId)
         {
-            // Placeholder: In a real app, inject a Repository and query DB for 
-            // cards where DeckId == deckId AND NextReviewDate <= DateTime.Now
             DueFlashcards.Clear();
             
-            DueFlashcards.Add(new Flashcard 
-            { 
-                DeckId = deckId, 
-                FrontText = "What does MVVM stand for?", 
-                BackText = "Model-View-ViewModel",
-                NextReviewDate = DateTime.Now.AddDays(-1)
-            });
-            
-            DueFlashcards.Add(new Flashcard 
-            { 
-                DeckId = deckId, 
-                FrontText = "What does RAG stand for in AI?", 
-                BackText = "Retrieval-Augmented Generation",
-                NextReviewDate = DateTime.Now.AddDays(-2)
-            });
+            var cards = _dbContext.Flashcards
+                .Where(f => f.DeckId == deckId && (f.NextReviewDate == null || f.NextReviewDate <= DateTime.Now))
+                .ToList();
+                
+            foreach (var card in cards)
+            {
+                DueFlashcards.Add(card);
+            }
 
             LoadNextCard();
         }
@@ -59,7 +96,6 @@ namespace AIStudyHub.ViewModels
         private void LoadNextCard()
         {
             IsFlipped = false;
-            FeedbackMessage = string.Empty;
             CurrentCard = DueFlashcards.FirstOrDefault();
         }
 
@@ -69,6 +105,7 @@ namespace AIStudyHub.ViewModels
             if (CurrentCard != null)
             {
                 IsFlipped = !IsFlipped;
+                FeedbackMessage = string.Empty;
             }
         }
 
@@ -80,12 +117,72 @@ namespace AIStudyHub.ViewModels
             // 1. Calculate new NextReviewDate
             _spacedRepetitionService.ProcessReview(CurrentCard, quality);
 
-            // 2. Placeholder: Save 'CurrentCard' back to the database here
-            FeedbackMessage = $"Card saved! Next review in {CurrentCard.Interval} days.";
+            // 2. Save 'CurrentCard' back to the database
+            _dbContext.Flashcards.Update(CurrentCard);
+            _dbContext.SaveChanges();
+            
+            var processedCard = CurrentCard;
+            DueFlashcards.Remove(processedCard);
 
-            // 3. Remove from due list and load next
-            DueFlashcards.Remove(CurrentCard);
+            if (quality < 3)
+            {
+                DueFlashcards.Add(processedCard);
+                if (!ForgottenCards.Contains(processedCard))
+                {
+                    ForgottenCards.Add(processedCard);
+                }
+                FeedbackMessage = "Card forgotten! It will appear again in this session.";
+            }
+            else
+            {
+                if (ForgottenCards.Contains(processedCard))
+                {
+                    ForgottenCards.Remove(processedCard);
+                }
+                FeedbackMessage = $"Card saved! Next review in {processedCard.Interval} days.";
+            }
+
             LoadNextCard();
+        }
+
+        [RelayCommand]
+        private void BackToDecks()
+        {
+            WeakReferenceMessenger.Default.Send(new BackToDecksMessage());
+        }
+
+        [RelayCommand]
+        private void AddFlashcard()
+        {
+            if (string.IsNullOrWhiteSpace(NewFrontText) || string.IsNullOrWhiteSpace(NewBackText))
+            {
+                FeedbackMessage = "Please enter both front and back text.";
+                return;
+            }
+
+            var newCard = new Flashcard
+            {
+                Id = Guid.NewGuid().ToString(),
+                DeckId = _deckId,
+                FrontText = NewFrontText.Trim(),
+                BackText = NewBackText.Trim(),
+                NextReviewDate = DateTime.Now
+            };
+
+            _dbContext.Flashcards.Add(newCard);
+            _dbContext.SaveChanges();
+
+            DueFlashcards.Add(newCard);
+            
+            if (CurrentCard == null)
+            {
+                LoadNextCard();
+            }
+
+            FeedbackMessage = "Flashcard added successfully!";
+            NewFrontText = string.Empty;
+            NewBackText = string.Empty;
+            IsAddCardModalOpen = false;
         }
     }
 }
