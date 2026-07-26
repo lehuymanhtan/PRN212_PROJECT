@@ -16,9 +16,9 @@ namespace AIStudyHub.Converters
         {
             return value?.ToString() switch
             {
-                DeadlineStatus.Todo => new SolidColorBrush(Color.FromRgb(239, 246, 255)),       // xanh nhạt
-                DeadlineStatus.InProgress => new SolidColorBrush(Color.FromRgb(255, 251, 235)), // vàng nhạt
-                DeadlineStatus.Done => new SolidColorBrush(Color.FromRgb(240, 253, 244)),       // xanh lá nhạt
+                DeadlineStatus.Todo or "Chưa làm" => new SolidColorBrush(Color.FromRgb(239, 246, 255)),       // xanh nhạt
+                DeadlineStatus.InProgress or "Đang làm" => new SolidColorBrush(Color.FromRgb(255, 251, 235)), // vàng nhạt
+                DeadlineStatus.Done or "Hoàn thành" => new SolidColorBrush(Color.FromRgb(240, 253, 244)),       // xanh lá nhạt
                 _ => new SolidColorBrush(Colors.White)
             };
         }
@@ -36,9 +36,9 @@ namespace AIStudyHub.Converters
         {
             return value?.ToString() switch
             {
-                DeadlineStatus.Todo => new SolidColorBrush(Color.FromRgb(96, 165, 250)),       // blue-400
-                DeadlineStatus.InProgress => new SolidColorBrush(Color.FromRgb(251, 191, 36)), // amber-400
-                DeadlineStatus.Done => new SolidColorBrush(Color.FromRgb(74, 222, 128)),       // green-400
+                DeadlineStatus.Todo or "Chưa làm" => new SolidColorBrush(Color.FromRgb(96, 165, 250)),       // blue-400
+                DeadlineStatus.InProgress or "Đang làm" => new SolidColorBrush(Color.FromRgb(251, 191, 36)), // amber-400
+                DeadlineStatus.Done or "Hoàn thành" => new SolidColorBrush(Color.FromRgb(74, 222, 128)),       // green-400
                 _ => new SolidColorBrush(Colors.Gray)
             };
         }
@@ -56,9 +56,9 @@ namespace AIStudyHub.Converters
         {
             return value?.ToString() switch
             {
-                DeadlineType.Assignment => "📝",
-                DeadlineType.Exam => "📋",
-                DeadlineType.Review => "🔍",
+                DeadlineType.Assignment or "Bài tập" => "📝",
+                DeadlineType.Exam or "Lịch thi" => "📋",
+                DeadlineType.Review or "Ôn tập" => "🔍",
                 _ => "📌"
             };
         }
@@ -76,9 +76,9 @@ namespace AIStudyHub.Converters
         {
             return value?.ToString() switch
             {
-                DeadlineType.Assignment => new SolidColorBrush(Color.FromRgb(165, 180, 252)),  // indigo-300
-                DeadlineType.Exam => new SolidColorBrush(Color.FromRgb(252, 165, 165)),        // red-300
-                DeadlineType.Review => new SolidColorBrush(Color.FromRgb(110, 231, 183)),      // emerald-300
+                DeadlineType.Assignment or "Bài tập" => new SolidColorBrush(Color.FromRgb(165, 180, 252)),  // indigo-300
+                DeadlineType.Exam or "Lịch thi" => new SolidColorBrush(Color.FromRgb(252, 165, 165)),        // red-300
+                DeadlineType.Review or "Ôn tập" => new SolidColorBrush(Color.FromRgb(110, 231, 183)),      // emerald-300
                 _ => new SolidColorBrush(Colors.LightGray)
             };
         }
@@ -86,6 +86,21 @@ namespace AIStudyHub.Converters
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
             => DependencyProperty.UnsetValue;
     }
+
+    /// <summary>
+    /// Chuyển đổi chuỗi loại Task (Assignment, Exam, Review) sang tiếng Việt (Bài tập, Lịch thi, Ôn tập).
+    /// </summary>
+    public class TypeToVietnameseConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return TypeMapper.ToVietnamese(value?.ToString());
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => DependencyProperty.UnsetValue;
+    }
+
 
     /// <summary>
     /// Tính màu cảnh báo dựa trên số ngày còn lại đến deadline.

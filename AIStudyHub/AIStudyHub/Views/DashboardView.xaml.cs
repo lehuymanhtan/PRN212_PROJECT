@@ -1,4 +1,5 @@
 using System.Windows.Controls;
+using AIStudyHub.ViewModels;
 
 namespace AIStudyHub.Views
 {
@@ -7,6 +8,7 @@ namespace AIStudyHub.Views
         public DashboardView()
         {
             InitializeComponent();
+            DataContext = new DashboardViewModel();
         }
     }
 }

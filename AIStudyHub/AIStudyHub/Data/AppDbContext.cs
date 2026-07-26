@@ -50,6 +50,8 @@ namespace AIStudyHub.Data
             modelBuilder.Entity<TaskItem>().ToTable("TASK");
             modelBuilder.Entity<Document>().ToTable("DOCUMENT");
             modelBuilder.Entity<FlashcardDeck>().ToTable("FLASHCARD_DECK");
+            modelBuilder.Entity<Flashcard>().ToTable("FLASHCARD");
+            modelBuilder.Entity<Annotation>().ToTable("ANNOTATION");
             modelBuilder.Entity<ChatMessage>().ToTable("CHAT_MESSAGE");
             modelBuilder.Entity<DocumentChunk>().ToTable("DOCUMENT_CHUNK");
             modelBuilder.Entity<AppSetting>().ToTable("APP_SETTING");
