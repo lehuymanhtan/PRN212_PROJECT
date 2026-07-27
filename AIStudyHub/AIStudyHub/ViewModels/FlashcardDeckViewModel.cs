@@ -29,28 +29,6 @@ namespace AIStudyHub.ViewModels
         [ObservableProperty]
         private bool _isCreateDeckModalOpen;
 
-        // --- NOTES PROPERTIES ---
-        [ObservableProperty]
-        private ObservableCollection<Note> _notes = new();
-
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(IsFlashcardsTabActive))]
-        private bool _isNotesTabActive;
-
-        public bool IsFlashcardsTabActive => !IsNotesTabActive;
-
-        [ObservableProperty]
-        private Note? _selectedNote;
-
-        [ObservableProperty]
-        private bool _isEditNoteModalOpen;
-
-        [ObservableProperty]
-        private string _editingNoteTitle = string.Empty;
-
-        [ObservableProperty]
-        private string _editingNoteContent = string.Empty;
-
         public FlashcardDeckViewModel()
         {
             _dbContext = new AppDbContext();
@@ -83,9 +61,6 @@ namespace AIStudyHub.ViewModels
 
             var decksList = _dbContext.FlashcardDecks.ToList();
             Decks = new ObservableCollection<FlashcardDeck>(decksList);
-
-            var notesList = _dbContext.Notes.OrderByDescending(n => n.UpdatedAt).ToList();
-            Notes = new ObservableCollection<Note>(notesList);
         }
 
         // --- FLASHCARD COMMANDS ---
@@ -127,93 +102,10 @@ namespace AIStudyHub.ViewModels
             WeakReferenceMessenger.Default.Send(new ReviewDeckMessage(deckId));
         }
 
-        // --- NOTES COMMANDS ---
         [RelayCommand]
-        private void SwitchToFlashcards()
+        private void ReviewDeck(string deckId)
         {
-            IsNotesTabActive = false;
-        }
-
-        [RelayCommand]
-        private void SwitchToNotes()
-        {
-            IsNotesTabActive = true;
-        }
-
-        [RelayCommand]
-        private void OpenCreateNoteModal()
-        {
-            SelectedNote = null;
-            EditingNoteTitle = "New Note";
-            EditingNoteContent = "";
-            IsEditNoteModalOpen = true;
-        }
-
-        [RelayCommand]
-        private void EditNote(Note note)
-        {
-            if (note == null) return;
-            SelectedNote = note;
-            EditingNoteTitle = note.Title;
-            EditingNoteContent = note.Content;
-            IsEditNoteModalOpen = true;
-        }
-
-        [RelayCommand]
-        private void CloseEditNoteModal()
-        {
-            IsEditNoteModalOpen = false;
-        }
-
-        [RelayCommand]
-        private void SaveNote()
-        {
-            if (string.IsNullOrWhiteSpace(EditingNoteTitle)) return;
-
-            if (SelectedNote == null)
-            {
-                // Create new
-                var newNote = new Note
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Title = EditingNoteTitle,
-                    Content = EditingNoteContent,
-                    SubjectId = SelectedSubject?.Id,
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now
-                };
-                _dbContext.Notes.Add(newNote);
-                Notes.Insert(0, newNote);
-            }
-            else
-            {
-                // Update existing
-                SelectedNote.Title = EditingNoteTitle;
-                SelectedNote.Content = EditingNoteContent;
-                SelectedNote.UpdatedAt = DateTime.Now;
-                _dbContext.Notes.Update(SelectedNote);
-                
-                // Force UI refresh by replacing in collection
-                var index = Notes.IndexOf(SelectedNote);
-                if (index >= 0)
-                {
-                    Notes.RemoveAt(index);
-                    Notes.Insert(index, SelectedNote);
-                }
-            }
-
-            _dbContext.SaveChanges();
-            IsEditNoteModalOpen = false;
-        }
-
-        [RelayCommand]
-        private void DeleteNote(Note note)
-        {
-            if (note == null) return;
-            
-            _dbContext.Notes.Remove(note);
-            _dbContext.SaveChanges();
-            Notes.Remove(note);
+            WeakReferenceMessenger.Default.Send(new ReviewDeckMessage(deckId));
         }
     }
 }

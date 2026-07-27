@@ -50,7 +50,9 @@
                     <Border Background="{StaticResource AppBgBrush}" CornerRadius="8" Padding="8" Margin="0,0,0,8">
                         <TextBox BorderThickness="0" Background="Transparent" FontSize="12"
                                  Foreground="{StaticResource TextSecondaryBrush}"
-                                 Text="Viết ghi chú..." TextWrapping="Wrap" Height="50"/>
+                                 Text="{Binding QuickNoteText, UpdateSourceTrigger=PropertyChanged}"
+                                 PreviewKeyDown="QuickNote_PreviewKeyDown"
+                                 TextWrapping="Wrap" Height="50" AcceptsReturn="True"/>
                     </Border>
                     <TextBlock Text="Phiên học tập" Style="{StaticResource CaptionStyle}" Margin="8,0,0,4" FontWeight="SemiBold"/>
                     <Button Style="{StaticResource NavButtonStyle}" Margin="0,2" Command="{Binding ToggleFocusTimerPopupCommand}" x:Name="FocusTimerButton">
@@ -167,7 +169,24 @@
                         </Button.Style>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="🧠" FontSize="14"/>
-                            <TextBlock Text="Flashcards &amp; Ghi chú" Margin="10,0,0,0"/>
+                            <TextBlock Text="Flashcards" Margin="10,0,0,0"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Margin="0,2" Command="{Binding NavigateToNotesCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsNotesActive}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource SidebarActiveBrush}"/>
+                                        <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📝" FontSize="14"/>
+                            <TextBlock Text="Ghi chú" Margin="10,0,0,0"/>
                         </StackPanel>
                     </Button>
                     <Button Margin="0,2" Command="{Binding NavigateToSettingsCommand}">
