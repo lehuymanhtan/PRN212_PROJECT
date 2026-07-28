@@ -41,6 +41,9 @@
             <DataTemplate DataType="{x:Type vm:FlashcardDeckViewModel}">
                 <views:FlashcardDeckView />
             </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:NoteViewModel}">
+                <views:NoteView />
+            </DataTemplate>
 
         </ResourceDictionary>
     </Application.Resources>

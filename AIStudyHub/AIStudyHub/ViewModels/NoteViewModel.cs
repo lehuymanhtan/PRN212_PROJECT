@@ -48,6 +48,7 @@ namespace AIStudyHub.ViewModels
 
         private void LoadData()
         {
+            _dbContext.ChangeTracker.Clear();
             var user = _dbContext.Users.FirstOrDefault();
             if (user == null)
             {
