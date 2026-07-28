@@ -100,7 +100,7 @@
 
             <Border Style="{StaticResource CardStyle}" Padding="16">
                 <DataGrid ItemsSource="{Binding Documents}" 
-                          AutoGenerateColumns="False" CanUserAddRows="False" 
+                          AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
                           Background="Transparent" BorderThickness="0"
                           GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{StaticResource BorderBrush}"
                           RowHeight="50" HeadersVisibility="Column">
@@ -138,7 +138,18 @@
                         <DataGridTextColumn Header="Tên Tài Liệu" Binding="{Binding Title}" Width="2*" FontWeight="SemiBold"/>
 
                         <!-- Môn Học -->
-                        <DataGridTextColumn Header="Môn Học" Binding="{Binding Subject.Name}" Width="1.5*"/>
+                        <DataGridTemplateColumn Header="Môn Học" Width="1.5*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <ComboBox ItemsSource="{Binding DataContext.Subjects, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                              DisplayMemberPath="Name"
+                                              SelectedValuePath="Id"
+                                              SelectedValue="{Binding SubjectId, UpdateSourceTrigger=PropertyChanged}"
+                                              BorderThickness="0" Background="Transparent" Padding="4"
+                                              DropDownClosed="SubjectComboBox_DropDownClosed" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
 
                         <!-- Ngày Upload -->
                         <DataGridTextColumn Header="Ngày Tải Lên" Binding="{Binding UploadedAt, StringFormat=dd/MM/yyyy HH:mm}" Width="150"/>

@@ -13,6 +13,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
+using Microsoft.EntityFrameworkCore;
 using AIStudyHub.Data;
 using AIStudyHub.Models;
 using AIStudyHub.Services;
@@ -364,6 +365,26 @@ namespace AIStudyHub.ViewModels
                 _documentService.DeleteDocument(document);
                 LoadDocuments();
                 StatusMessage = $"Đã xóa tài liệu: {document.Title}";
+            }
+        }
+
+        [RelayCommand]
+        private void UpdateDocumentSubject(Document? document)
+        {
+            if (document == null) return;
+            _documentService.UpdateDocumentSubject(document);
+            StatusMessage = $"Đã cập nhật môn học cho tài liệu: {document.Title}";
+            
+            // Reload the document to get the updated Subject name in the UI
+            var index = Documents.IndexOf(document);
+            if (index >= 0)
+            {
+                using var db = new AppDbContext();
+                var updatedDoc = db.Documents.Include(d => d.Subject).FirstOrDefault(d => d.Id == document.Id);
+                if (updatedDoc != null)
+                {
+                    Documents[index] = updatedDoc;
+                }
             }
         }
 

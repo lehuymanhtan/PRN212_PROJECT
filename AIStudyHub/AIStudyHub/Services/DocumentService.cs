@@ -293,5 +293,20 @@ namespace AIStudyHub.Services
                 // Bỏ qua lỗi nếu file đang mở hoặc bị khóa
             }
         }
+
+        /// <summary>
+        /// Cập nhật môn học cho tài liệu
+        /// </summary>
+        public void UpdateDocumentSubject(Document document)
+        {
+            if (document == null) return;
+            using var dbContext = new AppDbContext();
+            var existing = dbContext.Documents.Find(document.Id);
+            if (existing != null && existing.SubjectId != document.SubjectId)
+            {
+                existing.SubjectId = document.SubjectId;
+                dbContext.SaveChanges();
+            }
+        }
     }
 }

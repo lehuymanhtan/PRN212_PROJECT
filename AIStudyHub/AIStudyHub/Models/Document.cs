@@ -8,7 +8,7 @@ namespace AIStudyHub.Models
         public Guid SubjectId { get; set; } // Foreign Key
         public string Title { get; set; } = string.Empty;
         public string FilePath { get; set; } = string.Empty;
-        public string? FileType { get; set; } // "PDF", "DOCX", etc.
+        public string? FileType { get; set; } // "PDF", "DOCX"
         public DateTime UploadedAt { get; set; } = DateTime.Now;
 
         // Relationship (Navigation Property)

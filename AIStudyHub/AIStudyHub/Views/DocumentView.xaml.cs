@@ -124,5 +124,16 @@ namespace AIStudyHub.Views
                 vm.ContextualAICommand.Execute($"{action}|{text}");
             }
         }
+
+        private void SubjectComboBox_DropDownClosed(object sender, System.EventArgs e)
+        {
+            if (sender is ComboBox comboBox && comboBox.DataContext is Models.Document doc)
+            {
+                if (DataContext is ViewModels.DocumentViewModel vm)
+                {
+                    vm.UpdateDocumentSubjectCommand.Execute(doc);
+                }
+            }
+        }
     }
 }
