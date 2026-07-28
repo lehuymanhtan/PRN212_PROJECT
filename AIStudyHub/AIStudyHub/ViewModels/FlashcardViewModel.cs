@@ -34,6 +34,12 @@ namespace AIStudyHub.ViewModels
         private ObservableCollection<Flashcard> _dueFlashcards;
 
         [ObservableProperty]
+        private ObservableCollection<Flashcard> _allCards;
+
+        [ObservableProperty]
+        private bool _isLearningMode;
+
+        [ObservableProperty]
         private ObservableCollection<Flashcard> _forgottenCards;
 
         [ObservableProperty]
@@ -77,17 +83,82 @@ namespace AIStudyHub.ViewModels
             IsSidebarVisible = !IsSidebarVisible;
         }
 
+        [RelayCommand]
+        private void StartLearning()
+        {
+            IsLearningMode = true;
+            LoadNextCard();
+        }
+
+        [RelayCommand]
+        private void StopLearning()
+        {
+            IsLearningMode = false;
+        }
+
+        [RelayCommand]
+        private void DeleteCard(Flashcard card)
+        {
+            if (card == null) return;
+            
+            _dbContext.Flashcards.Remove(card);
+            _dbContext.SaveChanges();
+            
+            AllCards.Remove(card);
+            DueFlashcards.Remove(card);
+            ForgottenCards.Remove(card);
+            
+            if (CurrentCard == card)
+            {
+                LoadNextCard();
+            }
+        }
+
+        [RelayCommand]
+        private void DeleteDeck()
+        {
+            var deck = _dbContext.FlashcardDecks.FirstOrDefault(d => d.Id == _deckId);
+            if (deck != null)
+            {
+                _dbContext.FlashcardDecks.Remove(deck);
+                _dbContext.SaveChanges();
+            }
+            WeakReferenceMessenger.Default.Send(new BackToDecksMessage());
+        }
+
+        [RelayCommand]
+        private void ResetProgress()
+        {
+            var allCardsList = _dbContext.Flashcards.Where(f => f.DeckId == _deckId).ToList();
+            foreach (var card in allCardsList)
+            {
+                card.NextReviewDate = DateTime.Now;
+                card.RepetitionCount = 0;
+                card.EaseFactor = 2.5;
+                card.Interval = 0;
+            }
+            _dbContext.SaveChanges();
+            LoadDueCardsForDeck(_deckId);
+            FeedbackMessage = "Deck progress has been reset.";
+        }
+
         public void LoadDueCardsForDeck(string deckId)
         {
             DueFlashcards.Clear();
-            
-            var cards = _dbContext.Flashcards
-                .Where(f => f.DeckId == deckId && (f.NextReviewDate == null || f.NextReviewDate <= DateTime.Now))
-                .ToList();
-                
-            foreach (var card in cards)
+            if (AllCards == null)
             {
-                DueFlashcards.Add(card);
+                AllCards = new ObservableCollection<Flashcard>();
+            }
+            AllCards.Clear();
+            
+            var allCardsList = _dbContext.Flashcards.Where(f => f.DeckId == deckId).ToList();
+            foreach (var card in allCardsList)
+            {
+                AllCards.Add(card);
+                if (card.NextReviewDate == null || card.NextReviewDate <= DateTime.Now)
+                {
+                    DueFlashcards.Add(card);
+                }
             }
 
             LoadNextCard();
@@ -172,6 +243,7 @@ namespace AIStudyHub.ViewModels
             _dbContext.Flashcards.Add(newCard);
             _dbContext.SaveChanges();
 
+            AllCards.Add(newCard);
             DueFlashcards.Add(newCard);
             
             if (CurrentCard == null)

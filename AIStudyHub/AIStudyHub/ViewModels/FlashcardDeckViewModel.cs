@@ -63,6 +63,7 @@ namespace AIStudyHub.ViewModels
             Decks = new ObservableCollection<FlashcardDeck>(decksList);
         }
 
+        // --- FLASHCARD COMMANDS ---
         [RelayCommand]
         private void OpenCreateDeckModal()
         {
@@ -100,5 +101,7 @@ namespace AIStudyHub.ViewModels
         {
             WeakReferenceMessenger.Default.Send(new ReviewDeckMessage(deckId));
         }
+
+
     }
 }

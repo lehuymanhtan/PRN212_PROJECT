@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:AIStudyHub.Views"
              xmlns:viewmodels="clr-namespace:AIStudyHub.ViewModels"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="600" d:DesignWidth="800">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
     </UserControl.Resources>
@@ -17,57 +17,67 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        <TextBlock Text="Your Flashcard Decks" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="Flashcards" FontSize="24" FontWeight="Bold" VerticalAlignment="Center"/>
+        </Grid>
         
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <ItemsControl ItemsSource="{Binding Decks}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Background="White" BorderBrush="LightGray" BorderThickness="1" CornerRadius="10" Padding="15" Margin="10" Width="200" Height="150">
-                            <Border.Effect>
-                                <DropShadowEffect Color="Gray" BlurRadius="5" Opacity="0.3" />
-                            </Border.Effect>
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
-                                <Button Grid.Row="1" Content="Review" Command="{Binding DataContext.ReviewDeckCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Id}" Height="30" Background="Indigo" Foreground="White" Cursor="Hand" Margin="0,10,0,0">
-                                    <Button.Template>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}" CornerRadius="5">
-                                                <TextBlock Text="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Button.Template>
-                                </Button>
-                            </Grid>
+        <!-- FLASHCARDS LIST -->
+        <Grid Grid.Row="1">
+            
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Decks}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="White" BorderBrush="LightGray" BorderThickness="1" CornerRadius="10" Padding="15" Margin="10" Width="200" Height="150">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="Gray" BlurRadius="5" Opacity="0.3" />
+                                </Border.Effect>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
+                                    <Button Grid.Row="1" Content="Review" Command="{Binding DataContext.ReviewDeckCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Id}" Height="30" Background="Indigo" Foreground="White" Cursor="Hand" Margin="0,10,0,0">
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}" CornerRadius="5">
+                                                    <TextBlock Text="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+            
+            <Button HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,20"
+                    Width="60" Height="60" Command="{Binding OpenCreateDeckModalCommand}" Background="Indigo" Foreground="White" BorderThickness="0"
+                    ToolTip="Create new flashcard deck" Cursor="Hand">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="30">
+                            <TextBlock Text="+" FontSize="30" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,4"/>
                         </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </Grid>
         
-        <!-- Floating Create Deck Button -->
-        <Button Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,20"
-                Width="60" Height="60" Command="{Binding OpenCreateDeckModalCommand}" Background="MediumSeaGreen" Foreground="White" BorderThickness="0"
-                ToolTip="Create new deck" Cursor="Hand">
-            <Button.Template>
-                <ControlTemplate TargetType="Button">
-                    <Border Background="{TemplateBinding Background}" CornerRadius="30">
-                        <TextBlock Text="+" FontSize="30" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,4"/>
-                    </Border>
-                </ControlTemplate>
-            </Button.Template>
-        </Button>
+
         
-        <!-- Create Deck Modal Overlay -->
+        <!-- MODALS -->
+        
+        <!-- Create Deck Modal -->
         <Grid Grid.Row="0" Grid.RowSpan="2" Background="#80000000" Visibility="{Binding IsCreateDeckModalOpen, Converter={StaticResource BoolToVis}}" Panel.ZIndex="100">
             <Border Background="White" BorderBrush="LightGray" BorderThickness="1" CornerRadius="10" Padding="20" HorizontalAlignment="Center" VerticalAlignment="Center" Width="400">
                 <Border.Effect>
@@ -87,7 +97,7 @@
                     
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button Content="Cancel" Command="{Binding CloseCreateDeckModalCommand}" Background="Transparent" Foreground="Gray" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand"/>
-                        <Button Content="Create" Command="{Binding CreateDeckCommand}" Width="100" Height="35" Background="MediumSeaGreen" Foreground="White" Cursor="Hand">
+                        <Button Content="Create" Command="{Binding CreateDeckCommand}" Width="100" Height="35" Background="Indigo" Foreground="White" Cursor="Hand">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border Background="{TemplateBinding Background}" CornerRadius="5">
@@ -100,5 +110,8 @@
                 </StackPanel>
             </Border>
         </Grid>
+
+
+
     </Grid>
 </UserControl>

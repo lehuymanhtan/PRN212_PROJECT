@@ -15,15 +15,25 @@ namespace AIStudyHub.Data
         public DbSet<AppSetting> AppSettings { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<DocumentChunk> DocumentChunks { get; set; }
+        public DbSet<Note> Notes { get; set; }
 
         public static void InitializeDatabase()
         {
             using var db = new AppDbContext();
             db.Database.EnsureCreated();
 
-            // Khởi tạo các giá trị mặc định cho AppSetting nếu chưa có
-            var defaultEndpoint = db.AppSettings.Find("ApiEndpoint");
-            if (defaultEndpoint == null) db.AppSettings.Add(new AppSetting { Key = "ApiEndpoint", Value = "https://generativelanguage.googleapis.com/v1beta/models/" });
+            // Đảm bảo tạo bảng DOCUMENT nếu database cũ trước đó chưa có bảng này
+            db.Database.ExecuteSqlRaw(@"
+                CREATE TABLE IF NOT EXISTS ""DOCUMENT"" (
+                    ""Id"" TEXT NOT NULL CONSTRAINT ""PK_DOCUMENT"" PRIMARY KEY,
+                    ""SubjectId"" TEXT NOT NULL,
+                    ""Title"" TEXT NOT NULL,
+                    ""FilePath"" TEXT NOT NULL,
+                    ""FileType"" TEXT NULL,
+                    ""UploadedAt"" TEXT NOT NULL,
+                    CONSTRAINT ""FK_DOCUMENT_SUBJECT_SubjectId"" FOREIGN KEY (""SubjectId"") REFERENCES ""SUBJECT"" (""Id"") ON DELETE CASCADE
+                );
+            ");
 
             var defaultModel = db.AppSettings.Find("AiModel");
             if (defaultModel == null) db.AppSettings.Add(new AppSetting { Key = "AiModel", Value = "gemma-4-31b-it" });
@@ -34,6 +44,7 @@ namespace AIStudyHub.Data
             db.SaveChanges();
 
             db.EnsureDocumentChunkTableMigrated();
+            db.EnsureNotesTableCreated();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -50,9 +61,12 @@ namespace AIStudyHub.Data
             modelBuilder.Entity<TaskItem>().ToTable("TASK");
             modelBuilder.Entity<Document>().ToTable("DOCUMENT");
             modelBuilder.Entity<FlashcardDeck>().ToTable("FLASHCARD_DECK");
+            modelBuilder.Entity<Flashcard>().ToTable("FLASHCARD");
+            modelBuilder.Entity<Annotation>().ToTable("ANNOTATION");
             modelBuilder.Entity<ChatMessage>().ToTable("CHAT_MESSAGE");
             modelBuilder.Entity<DocumentChunk>().ToTable("DOCUMENT_CHUNK");
             modelBuilder.Entity<AppSetting>().ToTable("APP_SETTING");
+            modelBuilder.Entity<Note>().ToTable("NOTE");
 
             // Ràng buộc khoá ngoại (Cascade Delete)
             modelBuilder.Entity<Subject>()
@@ -148,6 +162,22 @@ namespace AIStudyHub.Data
                     PosY REAL NOT NULL,
                     Content TEXT,
                     Type TEXT NOT NULL DEFAULT 'Highlight'
+                )
+            ");
+        }
+
+        public void EnsureNotesTableCreated()
+        {
+            Database.ExecuteSqlRaw(@"
+                CREATE TABLE IF NOT EXISTS NOTE (
+                    Id TEXT NOT NULL PRIMARY KEY,
+                    Title TEXT NOT NULL,
+                    Content TEXT,
+                    SubjectId TEXT,
+                    CreatedAt TEXT NOT NULL,
+                    UpdatedAt TEXT NOT NULL,
+                    CONSTRAINT FK_NOTE_SUBJECT FOREIGN KEY (SubjectId)
+                        REFERENCES SUBJECT(Id) ON DELETE SET NULL
                 )
             ");
         }
