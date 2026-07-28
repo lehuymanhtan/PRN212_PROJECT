@@ -19,8 +19,27 @@
         </Grid.RowDefinitions>
         
         <Grid Grid.Row="0" Margin="0,0,0,20">
-            <Button Content="← Back to Decks" Command="{Binding BackToDecksCommand}" HorizontalAlignment="Left" VerticalAlignment="Center" Background="Transparent" BorderThickness="0" Foreground="Indigo" FontSize="16" Cursor="Hand"/>
-            <TextBlock Text="Flashcards" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsLearningMode}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Content="← Back to Decks" Command="{Binding BackToDecksCommand}" HorizontalAlignment="Left" VerticalAlignment="Center" Background="Transparent" BorderThickness="0" Foreground="Indigo" FontSize="16" Cursor="Hand"/>
+            <TextBlock Grid.Column="1" Text="Flashcards" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <Button Content="Reset Progress" Command="{Binding ResetProgressCommand}" Background="Transparent" BorderThickness="0" Foreground="DarkOrange" FontSize="14" Cursor="Hand" Margin="0,0,15,0" FontWeight="SemiBold"/>
+                <Button Content="Delete Deck" Command="{Binding DeleteDeckCommand}" Background="Transparent" BorderThickness="0" Foreground="#FF5252" FontSize="14" Cursor="Hand" FontWeight="SemiBold"/>
+            </StackPanel>
         </Grid>
         
         <!-- List Mode (Visible when IsLearningMode = false) -->
@@ -244,10 +263,20 @@
             </Grid>
         </Grid>
         
-        <!-- Floating Add Button (Always visible) -->
+        <!-- Floating Add Button (Hidden in learning mode) -->
         <Button Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,20"
                 Width="60" Height="60" Command="{Binding OpenAddCardModalCommand}" Background="Indigo" Foreground="White" BorderThickness="0"
                 ToolTip="Add new card">
+            <Button.Style>
+                <Style TargetType="Button">
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsLearningMode}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
             <Button.Template>
                 <ControlTemplate TargetType="Button">
                     <Border Background="{TemplateBinding Background}" CornerRadius="30">

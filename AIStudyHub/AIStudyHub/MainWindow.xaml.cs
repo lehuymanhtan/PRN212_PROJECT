@@ -27,6 +27,23 @@ namespace AIStudyHub
             }
         }
 
+        private void QuickNote_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter)
+            {
+                if (System.Windows.Input.Keyboard.Modifiers == System.Windows.Input.ModifierKeys.Shift)
+                {
+                    return;
+                }
+                
+                e.Handled = true;
+                if (DataContext is MainViewModel vm && vm.SaveQuickNoteCommand.CanExecute(null))
+                {
+                    vm.SaveQuickNoteCommand.Execute(null);
+                }
+            }
+        }
+
         private void MarkdownScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
         {
             if (!e.Handled)

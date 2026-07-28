@@ -23,6 +23,9 @@ namespace AIStudyHub.ViewModels
         private string _chatInputText = string.Empty;
 
         [ObservableProperty]
+        private string _quickNoteText = string.Empty;
+
+        [ObservableProperty]
         private bool _isChatLoading = false;
 
         [ObservableProperty]
@@ -54,7 +57,8 @@ namespace AIStudyHub.ViewModels
         public bool IsTasksActive => CurrentViewModel is TaskViewModel;
         public bool IsDocumentsActive => CurrentViewModel is DocumentViewModel;
         public bool IsSettingsActive => CurrentViewModel is SettingsViewModel;
-        public bool IsFlashcardsActive => CurrentViewModel is FlashcardViewModel;
+        public bool IsFlashcardsActive => CurrentViewModel is FlashcardViewModel || CurrentViewModel is FlashcardDeckViewModel;
+        public bool IsNotesActive => CurrentViewModel is NoteViewModel;
 
         partial void OnCurrentViewModelChanged(ObservableObject? value)
         {
@@ -64,6 +68,7 @@ namespace AIStudyHub.ViewModels
             OnPropertyChanged(nameof(IsDocumentsActive));
             OnPropertyChanged(nameof(IsSettingsActive));
             OnPropertyChanged(nameof(IsFlashcardsActive));
+            OnPropertyChanged(nameof(IsNotesActive));
         }
 
 
@@ -229,6 +234,9 @@ namespace AIStudyHub.ViewModels
         private void NavigateToFlashcards() => CurrentViewModel = new FlashcardDeckViewModel();
 
         [RelayCommand]
+        private void NavigateToNotes() => CurrentViewModel = new NoteViewModel();
+
+        [RelayCommand]
         private void NavigateToSettings() => CurrentViewModel = new SettingsViewModel();
 
         [RelayCommand]
@@ -335,6 +343,41 @@ namespace AIStudyHub.ViewModels
                 TimerDisplay = $"{_timerRemaining.Hours:D2}:{_timerRemaining.Minutes:D2}:{_timerRemaining.Seconds:D2}";
             else
                 TimerDisplay = $"{_timerRemaining.Minutes:D2}:{_timerRemaining.Seconds:D2}";
+        }
+
+        [RelayCommand]
+        private void SaveQuickNote()
+        {
+            if (string.IsNullOrWhiteSpace(QuickNoteText)) return;
+
+            using var db = new Data.AppDbContext();
+            
+            var quickNotes = System.Linq.Enumerable.FirstOrDefault(System.Linq.Queryable.Where(db.Notes, n => n.Title == "Ghi chú nhanh"));
+            string timestamp = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+            
+            if (quickNotes == null)
+            {
+                quickNotes = new Models.Note
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Title = "Ghi chú nhanh",
+                    Content = $"--- {timestamp} ---\n{QuickNoteText.Trim()}\n\n",
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                };
+                db.Notes.Add(quickNotes);
+            }
+            else
+            {
+                quickNotes.Content += $"--- {timestamp} ---\n{QuickNoteText.Trim()}\n\n";
+                quickNotes.UpdatedAt = DateTime.Now;
+                db.Notes.Update(quickNotes);
+            }
+
+            db.SaveChanges();
+            QuickNoteText = string.Empty;
+            
+            WeakReferenceMessenger.Default.Send(new NoteAddedMessage());
         }
     }
 }

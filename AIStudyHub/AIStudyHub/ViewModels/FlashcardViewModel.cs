@@ -114,6 +114,34 @@ namespace AIStudyHub.ViewModels
             }
         }
 
+        [RelayCommand]
+        private void DeleteDeck()
+        {
+            var deck = _dbContext.FlashcardDecks.FirstOrDefault(d => d.Id == _deckId);
+            if (deck != null)
+            {
+                _dbContext.FlashcardDecks.Remove(deck);
+                _dbContext.SaveChanges();
+            }
+            WeakReferenceMessenger.Default.Send(new BackToDecksMessage());
+        }
+
+        [RelayCommand]
+        private void ResetProgress()
+        {
+            var allCardsList = _dbContext.Flashcards.Where(f => f.DeckId == _deckId).ToList();
+            foreach (var card in allCardsList)
+            {
+                card.NextReviewDate = DateTime.Now;
+                card.RepetitionCount = 0;
+                card.EaseFactor = 2.5;
+                card.Interval = 0;
+            }
+            _dbContext.SaveChanges();
+            LoadDueCardsForDeck(_deckId);
+            FeedbackMessage = "Deck progress has been reset.";
+        }
+
         public void LoadDueCardsForDeck(string deckId)
         {
             DueFlashcards.Clear();
