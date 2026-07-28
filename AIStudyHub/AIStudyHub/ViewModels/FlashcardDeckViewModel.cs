@@ -102,10 +102,6 @@ namespace AIStudyHub.ViewModels
             WeakReferenceMessenger.Default.Send(new ReviewDeckMessage(deckId));
         }
 
-        [RelayCommand]
-        private void ReviewDeck(string deckId)
-        {
-            WeakReferenceMessenger.Default.Send(new ReviewDeckMessage(deckId));
-        }
+
     }
 }
