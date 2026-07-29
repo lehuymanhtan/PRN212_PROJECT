@@ -1,9 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Threading;
+using Microsoft.Win32;
+using NPOI.SS.UserModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using AIStudyHub.Data;
@@ -573,6 +578,106 @@ namespace AIStudyHub.ViewModels
         private void ShowUrgentFilter()
         {
             ShowUrgentOnly = !ShowUrgentOnly;
+        }
+
+        [RelayCommand]
+        private void ImportExcel()
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "Excel Files|*.xls;*.xlsx",
+                Title = "Chọn file Excel"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    using var file = new FileStream(openFileDialog.FileName, FileMode.Open, FileAccess.Read);
+                    var workbook = WorkbookFactory.Create(file);
+                    var sheet = workbook.GetSheetAt(0);
+
+                    var tasksToAdd = new List<TaskItem>();
+                    
+                    var generalSubject = _dbContext.Subjects.FirstOrDefault(s => s.Name == "General");
+                    if (generalSubject == null)
+                    {
+                        var user = _dbContext.Users.FirstOrDefault();
+                        generalSubject = new Subject
+                        {
+                            UserId = user?.Id ?? Guid.Empty,
+                            Name = "General",
+                            CourseCode = "GEN",
+                            ColorHex = "#64748B"
+                        };
+                        _dbContext.Subjects.Add(generalSubject);
+                        _dbContext.SaveChanges();
+                        Subjects.Add(generalSubject);
+                    }
+
+                    for (int row = 1; row <= sheet.LastRowNum; row++)
+                    {
+                        var currentRow = sheet.GetRow(row);
+                        if (currentRow == null) continue;
+
+                        var titleCell = currentRow.GetCell(0);
+                        if (titleCell == null || string.IsNullOrWhiteSpace(titleCell.ToString())) continue;
+                        var title = titleCell.ToString();
+
+                        var descCell = currentRow.GetCell(1);
+                        var description = descCell?.ToString();
+
+                        var typeCell = currentRow.GetCell(2);
+                        var typeStr = typeCell?.ToString();
+                        var dbType = TypeMapper.ToDbValue(typeStr); 
+
+                        var dateCell = currentRow.GetCell(3);
+                        DateTime? dueDate = null;
+                        if (dateCell != null)
+                        {
+                            if (dateCell.CellType == CellType.Numeric && DateUtil.IsCellDateFormatted(dateCell))
+                            {
+                                dueDate = dateCell.DateCellValue;
+                            }
+                            else if (DateTime.TryParse(dateCell.ToString(), out DateTime parsedDate))
+                            {
+                                dueDate = parsedDate;
+                            }
+                        }
+                        
+                        var finalDueDate = dueDate.HasValue ? GetAdjustedDueDate(dueDate.Value) : (DateTime?)null;
+
+                        var newTask = new TaskItem
+                        {
+                            Title = title.Trim(),
+                            Description = description?.Trim(),
+                            DueDate = finalDueDate,
+                            Status = DeadlineStatus.Todo,
+                            Type = dbType,
+                            SubjectId = generalSubject.Id,
+                            Subject = generalSubject
+                        };
+                        
+                        _dbContext.Tasks.Add(newTask);
+                        tasksToAdd.Add(newTask);
+                    }
+
+                    _dbContext.SaveChanges();
+
+                    foreach(var t in tasksToAdd)
+                    {
+                        AllTasks.Add(t);
+                    }
+                    UpdateStatistics();
+                    TasksView?.Refresh();
+                    
+                    MessageBox.Show($"Đã import thành công {tasksToAdd.Count} task(s)!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Lỗi khi đọc file Excel: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
     }
 }
